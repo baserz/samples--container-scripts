@@ -1,0 +1,109 @@
+name: infrastructure-services
+
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management]."
+
+volumes:
+  mssql-data:
+  rabbitmq-lib:
+  rabbitmq-log:
+  redis-data:
+
+networks:
+  infrastructure:
+    driver: bridge
+
+services:
+
+  mssql-server-2022:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql-server
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: SecureP@ssw0rd!
+      MSSQL_LOGGING: "verbose"
+      MSSQL_PID: 'Developer'
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - infrastructure
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - infrastructure
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    command: ["redis-server"]
+
+  rabbitmq-server:
+    image: rabbitmq:latest
+    container_name: rabbitmq-server
+    restart: always
+    networks:
+      - infrastructure
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbituser
+      RABBITMQ_DEFAULT_PASS: SecureP@ssw0rd!
+    configs:
+      - source: rabbitmq-plugins
+        target: /etc/rabbitmq/enabled_plugins
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - rabbitmq-lib:/var/lib/rabbitmq/
+      - rabbitmq-log:/var/log/rabbitmq/
+
+  dotnet-aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    container_name: aspire-dashboard
+    restart: always
+    ports:
+      - "18888:18888"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__MSSQLConnection=Server=mssql-server;Database=AspireDB;User Id=sa;Password=SecureP@ssw0rd!;
+      - Redis__Configuration=redis-server:6379
+      - RabbitMQ__HostName=rabbitmq-server
+      - RabbitMQ__UserName=rabbituser
+      - RabbitMQ__Password=SecureP@ssw0rd!
+    depends_on:
+      mssql-server-2022:
+        condition: service_healthy
+      redis-server:
+        condition: service_healthy
+      rabbitmq-server:
+        condition: service_healthy
+    networks:
+      - infrastructure
+
+          
