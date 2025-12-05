@@ -9,6 +9,8 @@ Small collection of scripts and information related to containerization and deve
 
 ### Links
 
+https://docs.docker.com/reference/cli/docker/
+
 https://learn.microsoft.com/en-us/visualstudio/containers/docker-compose-properties?view=vs-2022#docker-compose-msbuild-properties
 
 https://docs.docker.com/reference/cli/docker/compose/
