@@ -1,0 +1,11 @@
+llama-server -hf ggml-org/gpt-oss-20b-GGUF --jinja -c 0 --host 127.0.0.1 --port 8033 // DEFAULT GUID LLM
+
+Qwen dual setup -> kommandon
+----------------------------
+llama-server --hf-repo bartowski/Qwen2.5-Coder-14B-Instruct-GGUF --alias Qwen2.5-Coder-14B --hf-file Qwen2.5-Coder-14B-Instruct-Q8_0.gguf --host 127.0.0.1 --port 1234 -ngl 99 -c 16384
+llama-server -hf Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF --model Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf --ctx-size 8192 --port 8080
+
+
+Sätta upp container (för websök via searxng)
+------------------------------
+docker run -d -p 4000:8080 --name searxng --restart unless-stopped searxng/searxng

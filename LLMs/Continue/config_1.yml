@@ -1,0 +1,63 @@
+name: Local Configuration
+version: 1.0.0
+schema: v1
+disableWorkspaceTracking: false    # Explicitly locks indexing to the current workspace root
+
+models:
+  - name: "Qwen2.5-Coder-14B-LlamaCPP"
+    provider: "openai"
+    model: "Qwen2.5-Coder-14B"
+    apiBase: "http://127.0.0.1:1234"
+    defaultCompletionOptions:
+      contextLength: 16384             # Limits memory to your server's -c flag
+      maxTokens: 4096
+      temperature: 0.0
+
+# 2. FIXED: Tab-Autocomplete Dedicated Mapping
+tabAutocompleteModel:
+  name: "Qwen2.5-Coder-14B-LlamaCPP-Inline"
+  provider: "openai"
+  model: "Qwen2.5-Coder-14B"
+  apiBase: "http://127.0.0.1:1234"
+
+# 3. Global Tool Override Configuration Block
+experimental:
+  modelContextProtocol:
+    defaultToolPolicy: "automatic"
+
+# 4. SÄKRAD: Lokala rättigheter med inbyggt integritetsskydd
+permissions:
+  allow:
+    - "Read(*)"                
+    - "Write(**/*)"            
+    - "ViewFile(*)"            
+    - "WorkspaceIndex(*)"      
+  ask:
+    - "Bash"                   # Frågar ALLTID innan AI:n kör terminalkommandon i Windows
+  exclude:                     # FIXAT: Denna lista skyddar din maskin från data-läckor och frysningar
+    - "**/.env"                # Blockera miljöfiler med lösenord
+    - "**/*.pem"               # Blockera SSL/SSH-certifikat och privata nycklar
+    - "**/bin/**"              # Blockera tunga kompilerade filer (sparar CPU/RAM)
+    - "**/obj/**"              # Blockera tillfälliga byggobjekt (sparar CPU/RAM)
+    - "**/node_modules/**"     # Blockera tunga webb-paket
+    - "**/.git/**"             # Blockera versionshanteringsdata
+
+# FIXED: Modern YAML syntax uses 'provider' mappings inside objects instead of raw list items
+context:
+  - provider: web
+  - provider: codebase
+  - provider: folder
+  - provider: currentFile  # CRITICAL: This silently grabs your open tab like Copilot
+  - provider: file
+  - provider: search
+
+# FIXED: System rules must be a simple list of plain-text prompt blocks (no name keys)
+rules:
+  - |
+    Autonomous Engineering Agent Rules:
+    You are an elite local software engineering agent with total file system access.
+    You are authorized to search, read, create, edit, and remove files inside the workspace.
+    When instructed to change code or files, choose your tools immediately. 
+    If you require external documentation or updated info from the internet, invoke the web tool.
+
+    When the user invokes '@web', use the live injected search text results to answer.
