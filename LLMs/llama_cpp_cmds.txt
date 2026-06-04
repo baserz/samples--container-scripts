@@ -1,10 +1,72 @@
-llama-server -hf ggml-org/gpt-oss-20b-GGUF --jinja -c 0 --host 127.0.0.1 --port 8033 // DEFAULT GUID LLM
 
-Qwen dual setup -> kommandon
+
+LLMs that seems to be working with a 9070 xt.
 ----------------------------
-llama-server --hf-repo bartowski/Qwen2.5-Coder-14B-Instruct-GGUF --alias Qwen2.5-Coder-14B --hf-file Qwen2.5-Coder-14B-Instruct-Q8_0.gguf --host 127.0.0.1 --port 1234 -ngl 99 -c 16384
-llama-server -hf Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF --model Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf --ctx-size 8192 --port 8080
+llama-server --hf-repo bartowski/Qwen2.5-Coder-14B-Instruct-GGUF --alias Qwen2.5-Coder-14B --hf-file Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf --host 127.0.0.1 --jinja --flash-attn on --port 8088 --ctx-size 32768 -ctk q8_0 -ctv q8_0 -ngl 99
 
+
+
+
+
+llama-server -hf ggml-org/gpt-oss-20b-GGUF --alias gpt-oss-20b -c 0 --host 127.0.0.1 --flash-attn on --port 8033 // DEFAULT GUID LLM CMD
+llama-server --hf-repo bartowski/Qwen2.5-Coder-14B-Instruct-GGUF --alias Qwen2.5-Coder-14B --hf-file Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf --host 127.0.0.1 --jinja --flash-attn on --port 8032 --ctx-size 32768 -ngl 99
+llama-server -hf Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF --model Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf --ctx-size 8192 --port 8034
+
+
+
+
+llama-server.exe ^
+  --hf-repo unsloth/GLM-4.7-Flash-GGUF ^
+  --hf-file GLM-4.7-Flash-Q4_K_M.gguf ^
+  --alias glm-4.7-flash ^
+  -ngl 26 ^
+  --ctx-size 16384 ^
+  -t 8 ^
+  -C 0 ^
+  --flash-attn on ^
+  --no-mmap ^
+  --jinja ^
+  --temp 1.0 ^
+  --top-p 0.95 ^
+  --min-p 0.01 ^
+  --host 127.0.0.1 ^
+  --port 8080
+
+llama-server.exe ^
+  --hf-repo "Bartowski/DeepSeek-Coder-V2-Lite-Instruct-GGUF" ^
+  --hf-file "DeepSeek-Coder-V2-Lite-Instruct-Q4_K_M.gguf" ^
+  -ngl 99 ^
+  --ctx-size 16384 ^
+  --ubatch-size 1024 ^
+  --batch-size 2048 ^
+  --threads 8 ^
+  --flash-attn on ^
+  --cache-type-k f16 ^
+  --cache-type-v f16 ^
+  --host 127.0.0.1 ^
+  --port 8080
+
+llama-server.exe ^
+  --hf-repo THUDM/glm-4-9b-chat-gguf ^
+  --hf-file glm-4-9b-chat-q4_k_m.gguf ^
+  --alias glm-4-9b-chat ^
+  -ngl 26 ^
+  --ctx-size 16384 ^
+  -t 8 ^
+  -C 0 ^
+  --flash-attn on ^
+  --no-mmap ^
+  --jinja ^
+  --temp 1.0 ^
+  --top-p 0.95 ^
+  --min-p 0.01 ^
+  --host 127.0.0.1 ^
+  --port 8080
+
+
+
+
+llama-server --hf-repo bartowski/Qwen2.5-Coder-32B-Instruct-GGUF --alias Qwen2.5-Coder-32B --hf-file Qwen2.5-Coder-32B-Instruct-Q4_K_M.gguf --host 127.0.0.1 --port 8032 --ctx-size 16384 -ngl 22 -t 16 -ub 512 -b 512 --flash-attn on --jinja
 
 Sätta upp container (för websök via searxng)
 ------------------------------

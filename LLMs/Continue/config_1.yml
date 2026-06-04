@@ -1,39 +1,43 @@
 name: Local Configuration
 version: 1.0.0
 schema: v1
-disableWorkspaceTracking: false    # Explicitly locks indexing to the current workspace root
-
 models:
-  - name: "Qwen2.5-Coder-14B-LlamaCPP"
+  - name: GLM 4.7 Flash
+    provider: openai
+    model: glm-4.7-flash
+    chatOptions:
+      baseSystemMessage: "You are a helpful coding agent."
+      baseAgentSystemMessage: "You are a systematic coding agent. Break down problems methodically."
+      basePlanSystemMessage: "You are a planning agent. Create clear, actionable steps."
+    apiBase: http://localhost:8080/v1
+  - name: "Qwen 2.5 Coder 14B"
     provider: "openai"
     model: "Qwen2.5-Coder-14B"
-    apiBase: "http://127.0.0.1:1234"
-    defaultCompletionOptions:
-      contextLength: 16384             # Limits memory to your server's -c flag
-      maxTokens: 4096
-      temperature: 0.0
+    chatOptions:
+      baseSystemMessage: "You are a helpful coding agent."
+      baseAgentSystemMessage: "You are a systematic coding agent. Break down problems methodically."
+      basePlanSystemMessage: "You are a planning agent. Create clear, actionable steps."
+    apiBase: "http://127.0.0.1:8032"
 
-# 2. FIXED: Tab-Autocomplete Dedicated Mapping
-tabAutocompleteModel:
-  name: "Qwen2.5-Coder-14B-LlamaCPP-Inline"
-  provider: "openai"
-  model: "Qwen2.5-Coder-14B"
-  apiBase: "http://127.0.0.1:1234"
+roles:
+  - chat
+  - edit
+  - apply
+  - summarize
+  - embed
+  - rerank
 
-# 3. Global Tool Override Configuration Block
-experimental:
-  modelContextProtocol:
-    defaultToolPolicy: "automatic"
-
-# 4. SÄKRAD: Lokala rättigheter med inbyggt integritetsskydd
+  # 4. SÄKRAD: Lokala rättigheter med inbyggt integritetsskydd
 permissions:
   allow:
     - "Read(*)"                
     - "Write(**/*)"            
     - "ViewFile(*)"            
-    - "WorkspaceIndex(*)"      
+    - "WorkspaceIndex(*)"
+    - "Bash(dotnet*)"          # Tillåt endast dotnet-kommandon i terminalen (för att undvika skadliga kommandon)
+    - "Web(*)"                 # Tillåt alla webbförfrågningar (för
   ask:
-    - "Bash"                   # Frågar ALLTID innan AI:n kör terminalkommandon i Windows
+    - "Bash(*)"                # Frågar ALLTID innan AI:n kör terminalkommandon i Windows
   exclude:                     # FIXAT: Denna lista skyddar din maskin från data-läckor och frysningar
     - "**/.env"                # Blockera miljöfiler med lösenord
     - "**/*.pem"               # Blockera SSL/SSH-certifikat och privata nycklar
@@ -42,16 +46,25 @@ permissions:
     - "**/node_modules/**"     # Blockera tunga webb-paket
     - "**/.git/**"             # Blockera versionshanteringsdata
 
-# FIXED: Modern YAML syntax uses 'provider' mappings inside objects instead of raw list items
-context:
-  - provider: web
-  - provider: codebase
-  - provider: folder
-  - provider: currentFile  # CRITICAL: This silently grabs your open tab like Copilot
-  - provider: file
-  - provider: search
+capabilities:
+  - tool_use
 
-# FIXED: System rules must be a simple list of plain-text prompt blocks (no name keys)
+# Place this at the ROOT level of your config.yaml
+contextProviders:
+  - name: file         # For @File (individual files)
+  - name: currentFile  # For @Current File (active editor tab)
+  - name: folder       # For @Folder (sub-directories)
+  - name: code         # For @Code (classes/functions)
+  - name: codebase     # For @Codebase (vector indexing)
+  - name: diff         # For @Git Diff (local changes)
+  - name: terminal     # For @Terminal (terminal outputs)
+  - name: search       # For @Search (ripgrep IDE search)
+  - name: web          # For @Web (external web pages)
+  - name: docs         # For @Docs (indexed documentation frameworks)
+
+autoApprove:
+  mode: all
+
 rules:
   - |
     Autonomous Engineering Agent Rules:
@@ -59,5 +72,7 @@ rules:
     You are authorized to search, read, create, edit, and remove files inside the workspace.
     When instructed to change code or files, choose your tools immediately. 
     If you require external documentation or updated info from the internet, invoke the web tool.
-
-    When the user invokes '@web', use the live injected search text results to answer.
+  - ALWAYS build solution after making file changes, and solve all build errors before proceeding.
+  - ALWAYS use the terminal tool to run tests and validate fixes.
+  - NEVER make file changes without a clear plan and tool selection.
+  - NEVER access files outside the workspace or sensitive files like .env or .pem.
