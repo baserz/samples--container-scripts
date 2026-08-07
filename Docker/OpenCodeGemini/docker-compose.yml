@@ -1,0 +1,36 @@
+services:
+  dev-agent:
+    build: .
+    stdin_open: true
+    tty: true
+    
+    # SÄKERHET: Inga root-rättigheter och skrivskyddat OS
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    
+    volumes:
+      # Din kodbas (Agenten kan ENDAST ändra filer här)
+      - ./mitt-projekt:/workspace
+      
+      # TEMPORÄRA ZONER I RAM (tmpfs) för .NET och Node-cache
+      # Om dessa saknas kommer dotnet build och npm install krascha
+      - type: tmpfs
+        target: /tmp
+      - type: tmpfs
+        target: /home/agentuser/.nuget
+      - type: tmpfs
+        target: /home/agentuser/.npm
+      - type: tmpfs
+        target: /home/agentuser/.local
+      - type: tmpfs
+        target: /home/agentuser/.dotnet
+        
+    # Anslutning till din lokala Ollama / LLM
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
+    environment:
+      - LLM_API_BASE=http://host.docker.internal:11434/v1

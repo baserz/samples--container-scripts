@@ -1,0 +1,26 @@
+{
+  "name": "OpenCode dev (.NET + Node)",
+
+  // Återanvänder samma docker-compose.yml som du kör i produktion/på servern.
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "opencode",
+  "workspaceFolder": "/workspace",
+
+  // Kör som samma icke-root-användare som Dockerfilen skapar.
+  "remoteUser": "opencode",
+
+  // Låt inte VS Code stänga ner containern (och därmed opencode web-UI)
+  // när du stänger editorn.
+  "shutdownAction": "none",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

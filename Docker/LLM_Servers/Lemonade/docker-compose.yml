@@ -1,0 +1,70 @@
+services:
+  lemonade:
+    image: ghcr.io/lemonade-sdk/lemonade-server:latest
+    container_name: lemonade-server
+    restart: unless-stopped
+
+    ports:
+      - "13305:13305" # Web UI & API (http://<server-ip>:13305/api/v1)
+      - "9000:9000" # Only for live logs in Web UI
+
+    # AMD GPU-passthrough (ROCm).
+    # If you are using NVIDIA GPUs, you can remove the devices and group_add sections below, and instead add the following to the lemonade service:
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+
+    # Container runs as an unprivileged user (UID 10001).
+    # The video/render groups give it access to /dev/kfd and /dev/dri (required on most Ubuntu installations, replace with the GIDs from `getent group render` / `getent group video` on the host if it doesn't work).
+    #
+    # Run getent group video render' and note the GIDs on your host machine. If they differ from 44/126 (which is standard on Ubuntu 22.04), you must replace them with those GIDs in the line below. Otherwise, the container will not be able to access the GPU.
+    group_add:
+      - 44
+      - 990
+      # - video
+      # - render
+
+    environment:
+      # If using API key, othrwise comment out this line. The API key is used to authenticate requests to the Lemonade server.
+      # - LEMONADE_API_KEY=byt-ut-mig-mot-en-hemlig-nyckel
+      
+      # Set ROCM as default backend for AMD GPUs. If using NVIDIA GPUs, set this to 'cuda' instead.
+      - LEMONADE_DEFAULT_BACKEND=rocm
+
+      ## --- Model & context settings (llama.cpp) ---
+      # Offload GPU layers to CPU (reduces VRAM usage, but increases latency)
+      - LLAMA_ARG_N_GPU_LAYERS=99
+      # Set context size to 32k tokens (32 768)
+      - LLAMA_ARG_CTX_SIZE=32768
+      # Q8-q quantization for KV-cache (reduces VRAM usage, but increases latency)
+      - LLAMA_ARG_CACHE_TYPE_K=q8_0
+      - LLAMA_ARG_CACHE_TYPE_V=q8_0
+      # Activate Flash Attention (reduces VRAM usage, but increases latency)
+      - LLAMA_ARG_FLASH_ATTN=1
+
+      ## --- CORS ---
+      # Allows connections from localhost (otherwise prevents backend download and model download from the web)
+      - LEMONADE_ALLOWED_ORIGINS=http://localhost:13305,http://0.0.0.0:13305
+      - CORS_ALLOWED_ORIGINS=http://localhost:13305,http://0.0.0.0:13305
+
+      # Debug fallback
+      # - LEMONADE_ALLOWED_ORIGINS=* # TODO: Begränsa detta?
+      # - CORS_ALLOWED_ORIGINS=*
+
+    # Maps folder to .cache in host users home folder.
+    volumes:
+      - huggingface:/opt/lemonade/.cache/huggingface
+      - llama:/opt/lemonade/llama
+      - backend:/opt/lemonade/.cache/lemonade
+
+      # Persistant shared data folder for enabling lemonade to pass files to the host.
+      # This is useful for storing recipes, logs, and other data that can be accessed by the LLM.
+      # sudo mkdir -p ./data
+      # sudo mkdir -p /data/lemonade-shared
+      # sudo chmod 777 /data/lemonade-shared
+      - /data/lemonade-shared:/mnt/data
+
+volumes:
+  huggingface:
+  llama:
+  backend:

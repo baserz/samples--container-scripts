@@ -1,0 +1,46 @@
+services:
+  opencode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_UID: ${UID:-1000}
+        USER_GID: ${GID:-1000}
+    image: opencode-dev:local
+    container_name: opencode-dev
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+    # OpenCode web-UI. Samma server kan även "attachas" till från en
+    # terminal inne i containern - se README/instruktionerna.
+    ports:
+      - "4096:4096"
+
+    environment:
+      # Servern binder till 0.0.0.0 => kräver lösenordsskydd. Sätts i .env.
+      OPENCODE_SERVER_PASSWORD: ${OPENCODE_SERVER_PASSWORD:?sätt OPENCODE_SERVER_PASSWORD i .env}
+      OPENCODE_SERVER_USERNAME: ${OPENCODE_SERVER_USERNAME:-opencode}
+
+      # LLM-providernycklar - fyll bara i de ni faktiskt använder i .env.
+      # Alternativt kör /connect inne i containern, då sparas nyckeln i
+      # den monterade data-mappen (agent-home/data) och behövs inte här.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
+
+    volumes:
+      # Källkod
+      - /home/base/OpenWork/src:/workspace
+
+      # Config (opencode.json, tui.json, agents/, plugins/ ...)
+      - /home/base/OpenWork/agent-home/config:/home/opencode/.config/opencode
+      # Data (auth.json, sessionshistorik m.m.)
+      - /home/base/OpenWork/agent-home/data:/home/opencode/.local/share/opencode
+
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:4096/global/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

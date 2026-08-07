@@ -13,6 +13,10 @@ services:
     group_add:
       - video
       - render
+
+    cap_add:
+      - SYS_PTRACE
+
     ports:
       - "8000:8000"
     volumes:
@@ -24,10 +28,13 @@ services:
     # Enterprise-flaggor optimerade för dina 16 GB VRAM och Qwen 14B
     command: >
       --model Qwen/Qwen2.5-14B-Instruct-AWQ
-      --max-model-len 4096
-      --gpu-memory-utilization 0.85
+      --max-model-len 24576
+      --enable-chunked-prefill
+      --gpu-memory-utilization 0.90
+      --kv-cache-dtype fp8
       --enable-auto-tool-choice
       --tool-call-parser hermes
+
     restart: unless-stopped
 
   open-webui:
