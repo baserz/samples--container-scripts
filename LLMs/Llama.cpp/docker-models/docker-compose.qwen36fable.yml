@@ -1,0 +1,75 @@
+version: "3.8"
+
+networks:
+  llamacpp_net:
+    driver: bridge
+
+volumes:
+  # En dedikerad Docker-volym för att spara Hugging Face-metadata och cache-filer
+  llama_hf_cache:
+    driver: local
+
+services:
+  llama-server:
+    # Hämtar den officiella server-imagen från ggml-org med inbyggt Vulkan-stöd
+    image: ghcr.io/ggml-org/llama.cpp:server-vulkan
+    container_name: llama-cpp-server
+    # Krävs i WSL2 för att ge containern rättigheter att prata med Windows-grafikskiktet
+    user: "0:0"
+    restart: unless-stopped
+    ports:
+      - "8080:8080" # Exponerar API-servern till din Windows-host
+    environment:
+      - GGML_VULKAN=1
+      - GGML_VULKAN_DEVICE=0
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+    security_opt:
+      - seccomp=unconfined # Tillåter Direct3D12/Vulkan-systemanrop i containern
+    devices:
+      - /dev/dxg:/dev/dxg # Windows grafikbrygga för ditt Radeon-kort
+    volumes:
+      # Spara den nedladdade .gguf-filen i din lokala "models"-mapp på datorn
+      - ./models:/models
+      # Låter containern spara Hugging Face-cache så den slipper ladda ner på nytt vid omstart
+      - llama_hf_cache:/root/.cache/huggingface
+      # Ger containern direkt tillgång till Windows grafikfiler (läsläge)
+      - /usr/lib/wsl:/usr/lib/wsl:ro
+    command: 
+      # --- AUTOMATISK HUGGING FACE NEDLADDNING ---
+      # Berättar för llama.cpp vilket arkiv och vilken specifik fil den ska hämta
+      - "--hf-repo"
+      - "mradermacher/Qwen3.6-14B-A3B-FableVibes-GGUF"
+      - "--hf-file"
+      - "Qwen3.6-14B-A3B-FableVibes-Q4_K_M.gguf"
+      
+      # --- VAR MODELLEN SKA SPARAS LOKALT ---
+      - "-m"
+      - "/models/Qwen3.6-14B-A3B-FableVibes-Q4_K_M.gguf"
+
+      # --- ACCELERATION & BATCH (Maxar ditt RDNA4-kort) ---
+      - "--flash-attn"          # Kritiskt för extrema kontextfönster
+      - "-b"
+      - "2048"                  # Ökar prompt-processeringshastigheten markant
+      - "-ub"
+      - "2048"                  # Matchar batchstorleken för minimal latens
+      
+      # --- ASYMMETRISK 96K KONTEXT (Håller allt i VRAM) ---
+      - "-c"
+      - "96000"                 # Sätter kontextfönstret till exakt 96k tokens
+      - "-ctk"
+      - "q8_0"                  # Key cache i 8-bit (Behåller precision för sökningar)
+      - "-ctv"
+      - "q4_0"                  # Value cache i 4-bit (Sparar maximalt med VRAM)
+      - "--ctx-shift"           # Förhindrar krascher om chatten skulle bli full
+      
+      # --- FULL GPU OFFLOADING ---
+      - "-ngl"
+      - "99"                    # Trycker upp ALLA modellager till ditt RX 9070 XT
+      
+      # --- NÄTVERKSINSTÄLLNINGAR ---
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+    networks:
+      - llamacpp_net

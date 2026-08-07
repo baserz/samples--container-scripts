@@ -1,0 +1,40 @@
+networks:
+  lemonade_server_net:
+    driver: bridge
+
+volumes:
+  lemonade_server_models_volume:
+    driver: local
+  # Lemonade använder dessa interna volymer för sina djupt integrerade binärer
+  lemonade_llama_vol:
+    driver: local
+  lemonade_recipe_vol:
+    driver: local
+
+services:
+  lemonade:
+    image: ghcr.io/lemonade-sdk/lemonade-server:latest
+    container_name: lemonade-server
+    user: "0:0"
+    restart: unless-stopped
+    ports:
+      - "13305:13305"
+    environment:
+      # --- DETTA GÖR ATT GEMMA ANVÄNDER DIN AMD GPU ---
+      - LEMONADE_LLAMACPP_BACKEND=vulkan
+      - GGML_VULKAN=1
+      - GGML_VULKAN_DEVICE=0
+      - NVIDIA_VISIBLE_DEVICES=none
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib:/usr/lib/x86_64-linux-gnu
+    security_opt:
+      - seccomp=unconfined
+    devices:
+      - /dev/dxg:/dev/dxg
+    volumes:
+      - lemonade_server_models_volume:/opt/lemonade/.cache
+      - /usr/lib/wsl/lib:/usr/lib/wsl/lib:ro
+      # Sparar Lemonades backends på rätt ställe så de inte skrivs över vid omstart
+      - lemonade_llama_vol:/opt/lemonade/llama
+      - lemonade_recipe_vol:/opt/lemonade/.cache/lemonade
+    networks:
+      - lemonade_server_net

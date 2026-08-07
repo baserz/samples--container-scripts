@@ -1,0 +1,293 @@
+ // Fungerar faktiskt...... AIDER iaf
+llama-server \
+  --hf-repo unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF \
+  --hf-file Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf \
+  --alias qwen3-30b-moe \
+  --port 8080 \
+  --device vulkan0 \
+  --n-gpu-layers 99 \
+  --ctx-size 65536 \
+  --batch-size 1024 \
+  --ubatch-size 256 \
+  --cache-type-k q4_0 \
+  --cache-type-v q4_0 \
+  --flash-attn on \
+  --jinja
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Qwen3.5 9B  -------- AIDER OK == CLAUDE CLI NOT OK
+llama-server \
+  --hf-repo Jackrong/Negentropy-claude-opus-4.7-9B-GGUF \
+  --hf-file Negentropy-claude-opus-4.7-9B-Q4_K_M.gguf \
+  --alias Qwen3.5-9B-Opus \
+  --ctx-size 131072 \
+  --batch-size 2048 \
+  --ubatch-size 1024 \
+  --n-gpu-layers 999 \
+  --flash-attn on \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --port 8080 \
+  --host 0.0.0.0 \
+  --cont-batching \
+  --slot-save-path ./slots
+
+
+
+
+llama-server \
+  -hf bartowski/Qwen2.5-Coder-14B-Instruct-GGUF:Q4_K_M \
+  --alias qwen2.5-coder:14B \
+  --ctx-size 32768 \
+  --n-gpu-layers 99 \
+  --flash-attn on \
+  -ctk q8_0 \
+  -ctv q8_0 \
+  -ub 1024 \
+  -b 1024 \
+  --host 127.0.0.1 \
+  --port 8080
+
+
+// ?????????????????????????? otestad
+llama-server \
+  --hf-repo yuxinlu1/gemma-4-12B-it-Claude-4.6-4.8-Opus-GGUF \
+  --hf-file gemma4-opus48-Q4_K_M.gguf \
+  --alias Gemma-4-12B-Opus
+  --ctx-size 94208 \
+  --batch-size 2048 \
+  --ubatch-size 1024 \
+  --n-gpu-layers 999 \
+  --flash-attn on \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --port 8080 \
+  --host 0.0.0.0 \
+  --cont-batching \
+  --slot-save-path ./slots
+
+//Qwenb3.5 Opus 9B // VERKAR EJ FUNGERA KORREKT MED CLAUD CODE
+-------------------
+llama-server \
+  --hf-repo keypa/Qwen3.5-9B-Claude-Opus-4.7-GGUF \   
+  --hf-file Qwen3.5-9B.Q4_K_M.gguf \
+  --alias Qwen3.5-9B-Opus \
+  --ctx-size 131072 \
+  --batch-size 2048 \
+  --ubatch-size 1024 \
+  --n-gpu-layers 999 \
+  --flash-attn on \
+  --jinja
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --port 8080 \
+  --host 0.0.0.0 \
+  --cont-batching \
+  --slot-save-path ./slots
+
+
+
+// Qwen3.5-coder opus optimized
+---------------------------------
+llama-server \
+  --hf-repo Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-GGUF \
+  --hf-file Qwen3.5-4B.Q8_0.gguf \
+  --alias qwen3.5-4B-opus \
+  --host 127.0.0.1 \
+  --port 8080 \
+  -ngl 99 \
+  -fa on \
+  -c 49152 \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --ubatch-size 1024 \
+  --batch-size 2048
+  --slot-save-path ./slots
+
+// 4b med 64k context
+---------------------
+llama-server \
+  --hf-repo Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-GGUF \
+  --hf-file Qwen3.5-4B.Q8_0.gguf \
+  --host 127.0.0.1 \
+  --port 8080 \
+  -ngl 99 \
+  -fa on \
+  -c 65536 \
+  --rope-scaling yarn \
+  --rope-scale 2 \
+  --yarn-orig-ctx 32768 \
+  --cache-type-k q4_0 \
+  --cache-type-v q4_0 \
+  --ubatch-size 1024 \
+  --batch-size 2048
+  --slot-save-path ./slots
+
+128k context
+---------------
+llama-server \
+  --hf-repo Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-GGUF \
+  --hf-file Qwen3.5-4B.Q8_0.gguf \
+  --host 127.0.0.1 \
+  --port 8080 \
+  -ngl 99 \
+  -fa on \
+  -c 131072 \
+  --rope-scaling yarn \
+  --rope-scale 4 \
+  --yarn-orig-ctx 32768 \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --ubatch-size 1024 \
+  --batch-size 2048
+
+
+
+
+
+// GPT OSS 20B - 1500t/s
+llama-server \
+  -hf ggml-org/gpt-oss-20b-GGUF:mxfp4 \
+  --alias gpt-oss:20b \
+  --ctx-size 65536 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --n-gpu-layers 99 \
+  --flash-attn on \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --host 127.0.0.1 \
+  --port 8888
+
+// Qwen3 coder 30b 125+ t/s SER UT FUNGERA BRA MED CLAUDE CLI
+------------------
+
+llama-server \
+  --hf-repo unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF \
+  --hf-file Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf \
+  --alias qwen3-30b-moe \
+  --port 8080 \
+  --device vulkan0 \
+  --n-gpu-layers 99 \
+  --ctx-size 32768 \
+  --batch-size 1024 \
+  --ubatch-size 256 \
+  --cache-type-k q4_0 \
+  --cache-type-v q4_0 \
+  --flash-attn on \
+  --jinja
+
+// -> 64k context
+llama-server \
+  --hf-repo unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF \
+  --hf-file Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf \
+  --alias qwen3-30b-moe \
+  --port 8080 \
+  --device vulkan0 \
+  --n-gpu-layers 99 \
+  --ctx-size 65536 \
+  --batch-size 1024 \
+  --ubatch-size 256 \
+  --cache-type-k q4_0 \
+  --cache-type-v q4_0 \
+  --flash-attn on \
+  --jinja
+
+
+
+
+// Qwen 3.5 27B - 30t/s
+llama-server --hf-repo bartowski/Qwen_Qwen3.5-27B-GGUF --hf-file Qwen_Qwen3.5-27B-Q3_K_M.gguf --port 8080 -ngl 99 -fa 1 -c 65536 -b 256 -ub 256 --cache-type-k q8_0 --cache-type-v q8_0 --split-mode none --device vulkan0
+
+// Qwen3 14B - 56 t/s (ser ut rulla)
+--------------------
+GGML_VK_ALLOW_GRAPHICS_QUEUE=1 \
+llama-server \
+  --hf-repo unsloth/Qwen3-14B-GGUF \
+  --hf-file Qwen3-14B-Q4_K_M.gguf \
+  --alias qwen3-14b-48k \
+  --port 8080 \
+  --device vulkan0 \
+  -c 48000 \
+  --rope-scaling yarn \
+  --rope-scale 1.4648 \
+  --yarn-orig-ctx 32768 \
+  --batch-size 2048 \
+  --ubatch-size 2048 \
+  --cache-type-k q4_0 \
+  --cache-type-v q4_0 \
+  --flash-attn on \
+  --no-mmap \
+  --no-warmup \
+  --threads $(nproc) \
+  --jinja
+
+
+
+
+
+
+
+
+
+
+// Devstral 2 small -???
+llama-server \
+  -m devstral-small-2-24b-instruct.Q5_K_M.gguf \
+  -ctx 65536 \
+  -b 4096 \
+  -ub 1024 \
+  -ngl 99 \
+  -fa \
+  -ctk q8_0 \
+  -ctv q8_0 \
+  --jinja \
+  --port 8080
+
+// 32k Starcoder --!!GAMMAL MODEL, VARNAS FÖR DET
+llama-server --hf-repo second-state/StarCoder2-15B-GGUF --hf-file starcoder2-15b-Q5_K_M.gguf--alias Starcoder2:15B --port 8080 -ngl all -fa on -c 32768 -b 512 -ub 512 --cache-type-k q8_0 --cache-type-v q8_0 --rope-scaling yarn --rope-scale 2.0 --split-mode none --device vulkan0
+
+// 64k starcoder --!!GAMMAL MODEL, VARNAS FÖR DET
+llama-server --hf-repo second-state/StarCoder2-15B-GGUF --hf-file starcoder2-15b-Q5_K_M.gguf --alias Starcoder2:15B --port 8080 -ngl all -fa on -c 65536 -b 256 -ub 256 --cache-type-k q8_0 --cache-type-v q8_0 --rope-scaling yarn --rope-scale 4.0 --split-mode none --device vulkan0
+
+
+
+
+
+
+
+
+
+--------------------- Qwen3-Coder-30B-A3B-Instruct ----------------------
+# Aktiverar Vulkan (rekommenderas starkt för RDNA4-arkitekturen)
+export GGML_VULKAN_DEVICE=0
+
+llama-server \
+  -hf bartowski/Qwen3-Coder-30B-A3B-Instruct-GGUF:Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf \
+  --ctx-size 32768 \
+  --batch-size 1024 \
+  --ubatch-size 256 \
+  --threads $(nproc) \
+  --n-gpu-layers -1 \
+  --flash-attn on \
+  --cache-type-k q4_0 \
+  --cache-type-v q4_0 \
+  --no-mmap \
+  --host 0.0.0.0 \
+  --port 8080

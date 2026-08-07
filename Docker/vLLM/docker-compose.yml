@@ -1,0 +1,51 @@
+services:
+  vllm:
+    image: vllm/vllm-openai-rocm:latest
+    container_name: vllm-amd-backend
+    # Monterar drivrutiner för ditt AMD-kort
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    # Krävs för stabil minneshantering (Shared Memory) i ROCm
+    ipc: host
+    security_opt:
+      - seccomp=unconfined
+    group_add:
+      - video
+      - render
+    ports:
+      - "8000:8000"
+    volumes:
+      # Sparar modeller lokalt på din hårddisk så de slipper laddas ner varje gång
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    # environment:
+      # KLISTRA IN DIN HUGGING FACE TOKEN HÄR (Krävs för Gemma 4):
+      # - HUGGING_FACE_HUB_TOKEN=hf_din_token_har
+    # Enterprise-flaggor optimerade för dina 16 GB VRAM och Qwen 14B
+    command: >
+      --model Qwen/Qwen2.5-14B-Instruct-AWQ
+      --max-model-len 4096
+      --gpu-memory-utilization 0.85
+      --enable-auto-tool-choice
+      --tool-call-parser hermes
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui-frontend
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      # Kopplar frontend direkt till din vLLM-container via Docker-nätverket
+      - OPENAI_API_BASE_URL=http://vllm:8000/v1
+      - OPENAI_API_KEY=not-needed-for-local-lab
+      # Stänger av lokal databas-sökning i frontend för att spara CPU-resurser
+      - ENABLE_RAG=False
+    depends_on:
+      - vllm
+    restart: unless-stopped
+
+volumes:
+  open-webui:

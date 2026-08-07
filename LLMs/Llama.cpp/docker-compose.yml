@@ -1,0 +1,66 @@
+networks:
+  llamacpp_net:
+    driver: bridge
+
+volumes:
+  llama_hf_cache:
+    driver: local
+
+services:
+  llama-server:
+    # Vi byter till ROCm-imagen som har de absolut snabbaste beräkningskärnorna för AMD
+    image: ghcr.io/ggml-org/llama.cpp:server-rocm
+    container_name: llama-cpp-server
+    user: "0:0"
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # --- CRITICAL FOR AMD RDNA4 IN WSL2 ---
+      # Tvingar ROCm-lagret att känna igen ditt nya kort genom att emulera en känd arkitektur
+      - HIP_VISIBLE_DEVICES=0
+      - HSA_OVERRIDE_GFX_VERSION=11.0.0
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+    security_opt:
+      - seccomp=unconfined
+    devices:
+      - /dev/dxg:/dev/dxg
+      # Vi skickar även in de direkta Linux-kärnenheterna för ROCm-traversering
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    volumes:
+      - ./models:/models
+      - llama_hf_cache:/root/.cache/huggingface
+      - /usr/lib/wsl:/usr/lib/wsl:ro
+    command: 
+      # --- AUTOMATISK NEDLADDNING ---
+      - "--hf-repo"
+      - "unsloth/gemma-4-12b-it-GGUF"
+      - "--hf-file"
+      - "gemma-4-12b-it-Q4_K_M.gguf"
+      - "-m"
+      - "/models/gemma-4-12b-it-Q4_K_M.gguf"
+
+      # --- MAXIMAL PRESTANDA ---
+      - "--flash-attn"          # Blixtsnabb uppmärksamhetsberäkning [cf4f42e]
+      - "-c"
+      - "65536"                 # 64k kontextfönster
+      
+      # --- ASYMMETRISK CACHE (Håller allt i VRAM) ---
+      - "-ctk"
+      - "q8_0"                  # 8-bit Key cache
+      - "-ctv"
+      - "q4_0"                  # 4-bit Value cache
+      
+      # --- STABIL BATCH FÖR HÖG HASTIGHET ---
+      - "-b"
+      - "512"                   
+      - "-ngl"
+      - "99"                    # Tryck upp alla lager till 9070 XT
+      
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+    networks:
+      - llamacpp_net
