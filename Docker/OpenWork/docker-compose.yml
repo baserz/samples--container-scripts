@@ -1,0 +1,25 @@
+services:
+  openwork-sandbox:
+    image: node:20-slim
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    command: npx -y openwork
+    ports:
+      - "3000:3000"
+    environment:
+      # Use host.docker.internal so the container can reach Lemonade running on your host machine
+      - OPENAI_BASE_URL=http://host.docker.internal:13305/v1
+      - OPENAI_API_KEY=lemonade
+      - OPENAI_MODEL=your-lemonade-model-name
+    volumes:
+      # Mounts ONLY your target safe directory, protecting your host machine
+      - ./agent-workspace:/workspace
+    extra_hosts:
+      # Ensures host.docker.internal resolves correctly across Linux, Mac, and Windows
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G

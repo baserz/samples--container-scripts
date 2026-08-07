@@ -1,0 +1,19 @@
+services:
+  opencode-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opencode-agent
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    volumes:
+      # Mappar din lokala ./src-mapp till /workspace i containern
+      - /data/src:/workspace
+    environment:
+      # Styr LLM-anropen till din lokala Lemonade-server på host-maskinen
+      - OPENAI_BASE_URL=http://host.docker.internal:13305/v1
+      - OPENAI_API_KEY=lemonade
+    extra_hosts:
+      # Gör så att containern kan prata med din dators localhost oavsett OS
+      - "host.docker.internal:host-gateway"
