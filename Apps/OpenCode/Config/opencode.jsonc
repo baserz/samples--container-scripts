@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "lemonade-local/Qwen3.6-14B-A3B-FableVibes-GGUF-Q4_K_M",
+  "model": "lemonade-local/Gemma-4-12B-it-MTP-GGUF",
 
   "tui": {
     "message_limit": 10000
@@ -155,8 +155,15 @@
         "Qwen3.6-14B-A3B-FableVibes-GGUF-Q4_K_M": {
           "name": "Qwen 3.6 14B",
           "limit": {
-            "context": 70000,   // 🧠 Sätt det fysiska taket här (70k)...
-            "output": 4096
+            "context": 70000, // OpenCode will automatically prune the context to this token limit.
+            "output": 4096 // Sets  the maximum number of tokens the model can generate in a single response.
+          }
+        },
+          "Gemma-4-12B-it-MTP-GGUF": {
+          "name": "Gemma 4 12B",
+          "limit": {
+            "context": 24576, // OpenCode will automatically prune the context to this token limit.
+            "output": 4096 // Sets  the maximum number of tokens the model can generate in a single response.
           }
         }
       }

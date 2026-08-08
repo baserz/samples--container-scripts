@@ -15,3 +15,7 @@ alias start-opencode='docker exec -it -w /workspace/abc opencode-agent opencode 
 ## Manage permissions
 
 docker exec -it opencode-agent id
+
+## Vem kör container som
+
+docker exec opencode-agent whoami
