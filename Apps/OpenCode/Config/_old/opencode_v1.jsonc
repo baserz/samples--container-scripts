@@ -1,0 +1,102 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "lemonade-local/Qwen3.6-14B-A3B-FableVibes-GGUF-Q4_K_M",
+
+  "tui": {
+    "message_limit": 10000
+  },
+
+  // https://opencode.ai
+  "agent": {
+    "review": {
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "write": "deny"
+      }
+    },
+    "analyze": {
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "write": "deny"
+      }
+    },
+    "brainstorm": {
+      "temperature": 0.7,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "write": "deny"
+      }
+    },
+    "plan": {
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "write": "deny"
+      }
+    },
+    "code-reviewer": {
+      "temperature": 0.1,
+      "prompt": "You are a code reviewer. Focus on security, performance, code quality and maintainability.",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "write": "deny"
+      }
+    },
+    "build": {
+      "mode": "primary",
+      "temperature": 0.4,
+      "top_p": 0.90,
+      "min_p": 0.05,
+      "repetition_penalty": 1.05,
+      "frequency_penalty": 0.0,
+      "presence_penalty": 0.0,
+      "permission": {
+        "bash": "ask",
+        "edit": "ask",
+        "read": "ask",
+        "write": "ask",
+        "view": "ask",
+        "glob": "ask",
+        "doom_loop": "deny"
+      }
+    }
+  },
+
+  "compaction": {
+    "auto": true,
+    "buffer": 14000,      // 🎯 Prune/Compaction startar vid exakt 80% av maxContext!
+    "keep": {
+      "tokens": 8192       // Sparar de senaste 8k tokens efter rensningen
+    }  
+  },
+
+  "instructions": [
+    "CODING_GUIDELINES.md"
+  ],
+
+  "provider": {
+    "lemonade-local": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Lemonade Local",
+      "options": {
+        "baseURL": "http://localhost:13305/v1"
+      },
+      "models": {
+        "Qwen3.6-14B-A3B-FableVibes-GGUF-Q4_K_M": {
+          "name": "Qwen 3.6 14B",
+          "limit": {
+            "context": 70000,   // 🧠 Sätt det fysiska taket här (70k)...
+            "output": 4096
+          }
+        }
+      }
+    }
+  }
+}

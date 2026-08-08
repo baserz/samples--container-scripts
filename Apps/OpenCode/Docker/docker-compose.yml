@@ -1,0 +1,32 @@
+services:
+  opencode-agent:
+    user: "${UID:-1000}:${GID:-1000}" # Needs to run as the same user as the host to avoid permission issues with mounted volumes
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opencode-agent
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    volumes:
+      # Mounts the host's source code directory to the container's workspace, allowing the agent to access and modify files.
+      - /home/base/src:/workspace
+
+      # Mounts the host's OpenCode configuration and data directories to the container, ensuring that settings and data persist across container restarts.
+      - /home/base/.config/opencode:/home/appuser/.config/opencode
+
+      # Mounts the host's OpenCode data directory to the container, allowing the agent to access and store data persistently.
+      - data:/home/appuser/.local/share/opencode
+
+      # Maps opencodes data (for example auth.json if you run 'opencode auth login')
+      # Not needed for local LLM usage, but useful if you want to use OpenCode's cloud features.
+      # - ${HOME}/.local/share/opencode:/home/appuser/.local/share/opencode
+    # environment:
+      # Configure the OpenCode agent to use the Lemonade server running on the host machine.
+      # - OPENAI_BASE_URL=http://host.docker.internal:13305/v1
+      # - OPENAI_API_KEY=lemonade
+    extra_hosts:
+      # Gör så att containern kan prata med din dators localhost oavsett OS
+      - "host.docker.internal:host-gateway"
+volumes:
+  data:
