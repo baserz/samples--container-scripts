@@ -49,6 +49,18 @@ sudo reboot
 Install through the portainer docker-compose file. (docker logs contain setup key)
 Url: https://localhost:9443/
 
+# OPT: Installera SBX (Docker sandboxes, KRÄVER DOCKER LOGIN! KÖRS I MOLNET!)
+
+## Eftersom sbx använder hårdvaruisolering (KVM) istället för vanliga containrar, måste din användare tillhöra kvm-gruppen för att kunna starta dem.
+
+sudo apt-get update
+sudo apt-get install -y docker-sbx
+sudo usermod -aG kvm $USER
+newgrp kvm
+sbx login
+
+## When setup is finieshed:
+sbx run opencode
 
 
 
