@@ -141,7 +141,7 @@
   },
 
   "instructions": [
-    "CODING_GUIDELINES.md"
+    "DOTNET_CODING_GUIDELINES.md"
   ],
 
   "provider": {
@@ -149,7 +149,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "Lemonade Local",
       "options": {
-        "baseURL": "http://localhost:13305/v1"
+        "baseURL": "http://lemonade-server:13305/v1" // localhost would not work in Docker, use the service name instead
       },
       "models": {
         "Qwen3.6-14B-A3B-FableVibes-GGUF-Q4_K_M": {

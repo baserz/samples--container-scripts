@@ -1,6 +1,11 @@
+networks:
+  ai-net:
+    external: true
 services:
   opencode-agent:
     # user: "${UID:-1000}:${GID:-1000}" # Needs to run as the same user as the host to avoid permission issues with mounted volumes
+    networks:
+      - ai-net
     build:
       context: .
       dockerfile: Dockerfile

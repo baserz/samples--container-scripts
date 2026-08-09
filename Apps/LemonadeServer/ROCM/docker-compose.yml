@@ -1,8 +1,23 @@
+networks:
+  ai-net:
+    external: true
+    
+volumes:
+  huggingface:
+    name: lemonade-server_huggingface
+  llama:
+    name: lemonade-server_llama
+  backend:
+    name: lemonade-server_backend
+
 services:
-  lemonade:
+  lemonade-server:
     image: ghcr.io/lemonade-sdk/lemonade-server:latest
     container_name: lemonade-server
     restart: unless-stopped
+
+    networks:
+      - ai-net
 
     ports:
       - "13305:13305" # Web UI & API (http://<server-ip>:13305/api/v1)
@@ -63,8 +78,3 @@ services:
       # sudo mkdir -p /data/lemonade-shared
       # sudo chmod 777 /data/lemonade-shared
       - /data/lemonade-shared:/mnt/data
-
-volumes:
-  huggingface:
-  llama:
-  backend:

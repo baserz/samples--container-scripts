@@ -19,3 +19,8 @@ docker exec -it opencode-agent id
 ## Vem kör container som
 
 docker exec opencode-agent whoami
+
+## Skapa symlink (för dotnet)
+
+sudo ln -s /snap/dotnet/current/usr/share/dotnet /usr/share/dotnet
+export DOTNET_ROOT=/snap/dotnet/current/usr/share/dotnet
