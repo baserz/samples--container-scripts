@@ -122,6 +122,7 @@
           "dotnet ef migrations list*": "allow",
           "dotnet --list-sdks*": "allow",
           "dotnet --list-runtimes*": "allow",
+          "dotnet --version*": "allow",
           "dotnet add package*": "ask",
           "dotnet remove package*": "ask",
           "dotnet publish*": "ask",
