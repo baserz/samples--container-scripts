@@ -24,3 +24,7 @@ docker exec opencode-agent whoami
 
 sudo ln -s /snap/dotnet/current/usr/share/dotnet /usr/share/dotnet
 export DOTNET_ROOT=/snap/dotnet/current/usr/share/dotnet
+
+## Kontrollera om container har aktiv host access
+
+docker inspect opencode-agent --format '{{json .HostConfig.ExtraHosts}}'
