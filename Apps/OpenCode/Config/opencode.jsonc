@@ -56,7 +56,12 @@
       "permission": {
         "external_directory": "deny",
         "doom_loop": "deny",
-        "webfetch": "allow",
+        "webfetch": "ask",
+        // "webfetch": {
+        //   "github.com/*": "allow",
+        //   "docs.microsoft.com/*": "allow",
+        //   "*": "ask"
+        // }
         "glob": "allow",
         "view": "allow",
         "grep": "allow",
