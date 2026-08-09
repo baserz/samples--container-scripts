@@ -38,4 +38,4 @@ services:
     # extra_hosts:
       # Make the host machine accessible from within the container, allowing the agent to communicate with services running on the host.
       # ONLY NEEDED IF LEMONADE SERVER RUNNING LOCALLY ON HOST MACHINE (This is a potential security risk if you don't know what you're doing, so use with caution).
-      # - "host.docker.internal:host-gateway"
+      # Set the following for host access: - "host.docker.internal:host-gateway"
