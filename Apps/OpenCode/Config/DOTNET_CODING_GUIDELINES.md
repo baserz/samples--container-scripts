@@ -1,24 +1,23 @@
 # .NET Coding Guidelines
 
-This document describes our standards and guidelines for .NET development.
-The goal is a codebase that is maintainable, testable, and scalable over
-time.
+Standards and guidelines for .NET development. Goal: a codebase that is
+maintainable, testable, and scalable over time.
 
 ## 1. Architecture and Code Structure
 
-We build our systems around **Feature Isolation**, **Vertical Slice
-Architecture**, and principles from **Hexagonal Architecture**.
+Built around **Feature Isolation**, **Vertical Slice Architecture**, and
+principles from **Hexagonal Architecture**.
 
 ### 1.1 Vertical Slice Architecture & Feature Isolation
 
-Instead of organizing code into technical layers (Controllers, Services,
-Repositories), organize it by **feature**.
+Organize code by **feature**, not by technical layer (Controllers,
+Services, Repositories).
 
-- **High cohesion:** All code required for a specific feature (Request,
-  Response, Handler, Validation) should live together.
+- **High cohesion:** All code for a specific feature (Request, Response,
+  Handler, Validation) lives together.
 - **Low coupling:** A feature must not depend directly on another
-  feature's internal logic. If features need to communicate, do it
-  through well-defined interfaces or events (e.g., domain events).
+  feature's internal logic. Cross-feature communication goes through
+  well-defined interfaces or events (e.g., domain events).
 - **Directory structure:**
 
   ```text
@@ -36,96 +35,87 @@ Repositories), organize it by **feature**.
 
 ### 1.2 Hexagonal Architecture (Ports and Adapters)
 
-The core of the application (domain / use cases) must be completely
-independent of external frameworks, databases, and UI.
+The core (domain / use cases) must be completely independent of external
+frameworks, databases, and UI.
 
-- **Ports (interfaces):** If business logic needs to talk to the outside
-  world (e.g., fetch data), it defines an interface (a port).
-- **Adapters (implementations):** The infrastructure layer implements
-  these interfaces (e.g., a SQL database adapter or a REST client).
-- **Dependency direction:** Infrastructure depends on the core (domain).
-  The core must *never* depend on infrastructure.
+- **Ports (interfaces):** Business logic defines an interface (port) when
+  it needs to talk to the outside world (e.g., fetch data).
+- **Adapters (implementations):** Infrastructure implements those
+  interfaces (e.g., a SQL adapter, a REST client).
+- **Dependency direction:** Infrastructure depends on the core. The core
+  *never* depends on infrastructure.
 
 ---
 
 ## 2. Modern .NET Principles
 
-We use modern C# and .NET features to write safe, concise code.
-
 ### 2.1 C# Language Features
 
 - **Nullable reference types:** Must be enabled
-  (`<Nullable>enable</Nullable>`). Handle null values explicitly to avoid
+  (`<Nullable>enable</Nullable>`); handle null explicitly to avoid
   `NullReferenceException`.
-- **Records for data:** Use `record` instead of `class` for DTOs,
-  commands, queries, and events. This gives built-in immutability and
-  value-based equality.
-- **File-scoped namespaces:** Use file-scoped namespaces
-  (`namespace MyProject.Features;`) to reduce indentation.
-- **Global usings:** Collect common `using` directives in a
-  `GlobalUsings.cs` file to keep individual files clean.
+- **Records for data:** Use `record`, not `class`, for DTOs, commands,
+  queries, and events — built-in immutability and value-based equality.
+- **File-scoped namespaces:** `namespace MyProject.Features;` to reduce
+  indentation.
+- **Global usings:** Collect common `using` directives in
+  `GlobalUsings.cs`.
 
 ### 2.2 Asynchronous Programming
 
-- All I/O-bound code (database, network, files) **must** be asynchronous
-  (`async`/`await`).
-- Always pass a `CancellationToken` through the entire call chain so
-  expensive operations can be cancelled when the client disconnects.
-- Avoid `Task.Result` or `.Wait()`, since these can cause deadlocks.
-- `ConfigureAwait(false)` is normally **not needed** in ASP.NET Core apps
-  (there is no `SynchronizationContext` to avoid), but it is relevant in
-  shared class libraries that may also be used in contexts with a
-  synchronization context (e.g., WPF or classic ASP.NET).
+- All I/O-bound code (database, network, files) **must** be
+  `async`/`await`.
+- Pass a `CancellationToken` through the entire call chain so expensive
+  operations can be cancelled on client disconnect.
+- Avoid `Task.Result` / `.Wait()` — can cause deadlocks.
+- `ConfigureAwait(false)` is normally **not needed** in ASP.NET Core (no
+  `SynchronizationContext` to avoid), but is relevant in shared class
+  libraries also used in contexts that have one (e.g., WPF, classic
+  ASP.NET).
 
 ### 2.3 API Design (REPR Pattern)
 
 - Prefer **Minimal APIs** or the **REPR pattern** (Request-Endpoint-
   Response) over large, bloated controllers.
-- One endpoint = one class. This limits dependencies to only what that
-  specific endpoint needs.
+- One endpoint = one class, so each endpoint depends only on what it
+  actually needs.
 
 ---
 
 ## 3. Testing Strategy
 
-Our testing strategy moves away from isolated, class-by-class unit tests
-with hundreds of mocked dependencies, and instead focuses on **behavior**
-and **integration tests**.
+Moves away from isolated, class-by-class unit tests with heavily mocked
+dependencies, toward **behavior** and **integration tests**.
 
 ### 3.1 Testing Pyramid vs. "Testing Trophy"
 
-- **Integration tests are king:** Focus on testing the entire vertical
-  slice, from the endpoint (or handler) down to the database.
-- **Unit tests:** Reserve unit tests for pure business logic, domain
-  models, and complex calculations that have no I/O dependencies.
+- **Integration tests are king:** test the full vertical slice, endpoint
+  (or handler) down to the database.
+- **Unit tests:** reserved for pure business logic, domain models, and
+  complex calculations with no I/O dependencies.
 
 ### 3.2 Testcontainers Instead of Mocking / In-Memory
 
-We avoid Entity Framework's in-memory database provider because it does
-not behave like a real relational database (e.g., it lacks support for
-constraints and transactions).
+Avoid EF's in-memory database provider — it doesn't behave like a real
+relational database (no constraints, no transactions).
 
-- Use **Testcontainers** to spin up real databases (e.g., PostgreSQL/SQL
-  Server), Redis, or RabbitMQ via Docker during test runs.
-- Avoid mocking repository interfaces when you can instead test against a
-  real database via Testcontainers.
-- Only mock *external* dependencies that we don't control (e.g.,
+- Use **Testcontainers** to spin up real databases (e.g.,
+  PostgreSQL/SQL Server), Redis, or RabbitMQ via Docker during tests.
+- Avoid mocking repository interfaces when you can test against a real
+  database via Testcontainers instead.
+- Only mock *external* dependencies outside our control (e.g.,
   third-party payment APIs).
 
 ### 3.3 Structure and Libraries
 
-Our testing stack:
-
 - **Framework:** `xUnit`
-- **Assertions:** `FluentAssertions` for readability (e.g.,
-  `result.Should().BeTrue();`).
-- **Web testing:** `WebApplicationFactory<T>` to spin up our API
-  in-memory and call it via an HTTP client in tests.
+- **Assertions:** `FluentAssertions` (e.g., `result.Should().BeTrue();`)
+- **Web testing:** `WebApplicationFactory<T>` to spin up the API
+  in-memory and call it via an HTTP client.
 
 ### 3.4 Arrange-Act-Assert (AAA)
 
-Always structure tests using the AAA pattern, with blank lines separating
-each section for readability.
+Structure tests using AAA, with blank lines separating each section.
 
 ```csharp
 [Fact]
@@ -149,10 +139,10 @@ public async Task CreateOrder_WithValidData_ShouldSaveToDatabase()
 
 ### 3.5 Avoid Fragile Tests
 
-- Test what the code does, not how it does it. Don't rewrite tests just
-  because a private method was renamed internally.
-- Don't hardcode IDs or dates. Use test fixtures or a library like Bogus
-  to generate dynamic test data.
+- Test what the code does, not how — don't rewrite tests just because a
+  private method was renamed internally.
+- Don't hardcode IDs or dates; use test fixtures or a library like Bogus
+  for dynamic test data.
 
 ---
 
@@ -160,33 +150,26 @@ public async Task CreateOrder_WithValidData_ShouldSaveToDatabase()
 
 ### 4.1 Handle Edge Cases and Expected Failure States
 
-Follow these rules whenever you write or generate code that accepts
-external input (request bodies, query parameters, route values, command
-arguments, etc.):
+Apply these rules whenever code accepts external input (request bodies,
+query parameters, route values, command arguments, etc.):
 
-1. **Validate all required input.** Every argument or request parameter
-   that is required must be validated before it is used. Use a
-   dedicated validator (e.g., `CreateOrderValidator.cs` next to the
-   feature it belongs to), not scattered inline checks.
-2. **Validation failures are not exceptions.** A request with invalid or
-   missing data must produce a clear, structured error response (e.g.,
-   HTTP 400 with a `ProblemDetails` body) — never an unhandled exception
-   or a generic 500 error.
-3. **Check data shape, not just presence.** Validation must confirm the
-   received data matches the expected format/type (e.g., a string that
-   should be a GUID, a date in the expected range), not only that a
-   field is non-null.
-4. **Reserve `throw` for truly unrecoverable states.** Only throw an
-   exception when the application has reached a state it cannot recover
-   from or reasonably continue past (e.g., the database is unreachable,
-   a required configuration value is missing at startup, an invariant
-   inside the domain model has been violated by a programming bug).
+1. **Validate all required input.** Every required argument or request
+   parameter must be validated before use, via a dedicated validator
+   (e.g., `CreateOrderValidator.cs` next to its feature) — not scattered
+   inline checks.
+2. **Validation failures are not exceptions.** Invalid or missing data
+   must produce a clear, structured error response (e.g., HTTP 400 with
+   `ProblemDetails`) — never an unhandled exception or generic 500.
+3. **Check data shape, not just presence.** Confirm the data matches the
+   expected format/type (e.g., a GUID-shaped string, a date in range) —
+   not just that a field is non-null.
+4. **Reserve `throw` for truly unrecoverable states** — e.g., the
+   database is unreachable, a required config value is missing at
+   startup, a domain invariant was violated by a programming bug.
 5. **Invalid user input is never grounds for an exception.** If the
-   failure is caused by data the caller supplied, handle it as a
-   validation error (see rule 2), even if the input is malformed,
-   unexpected, or missing entirely. Do not use `throw` as a substitute
-   for input validation.
+   caller supplied the bad data, handle it as a validation error (rule
+   2) regardless of how malformed or missing it is. Never use `throw` as
+   a substitute for input validation.
 
-**Rule of thumb:** if the cause of the failure is "the caller sent
-something wrong," return a validation error. If the cause is "the
-system itself is broken or in an impossible state," throw an exception.
+**Rule of thumb:** caller sent something wrong → validation error. The
+system itself is broken or in an impossible state → exception.
