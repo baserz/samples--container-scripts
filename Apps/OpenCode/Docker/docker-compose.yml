@@ -35,6 +35,7 @@ services:
       # Configure the OpenCode agent to use the Lemonade server running on the host machine.
       # - OPENAI_BASE_URL=http://host.docker.internal:13305/v1
       # - OPENAI_API_KEY=lemonade
-    extra_hosts:
-      # Gör så att containern kan prata med din dators localhost oavsett OS
-      - "host.docker.internal:host-gateway"
+    # extra_hosts:
+      # Make the host machine accessible from within the container, allowing the agent to communicate with services running on the host.
+      # ONLY NEEDED IF LEMONADE SERVER RUNNING LOCALLY ON HOST MACHINE (This is a potential security risk if you don't know what you're doing, so use with caution).
+      # - "host.docker.internal:host-gateway"
