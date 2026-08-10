@@ -161,6 +161,13 @@
         "baseURL": "http://lemonade-server:13305/v1" // localhost would not work in Docker, use the service name instead
       },
       "models": {
+        "gpt-oss-20b-GGUF-Q4_K_M": {
+          "name": "GPT OSS 20B GGUF",
+          "limit": {
+            "context": 29696,
+            "output": 8192
+          }
+      },
       "Qwen3-14B-GGUF": {
         "name": "Qwen3 14B GGUF",
         "limit": {
