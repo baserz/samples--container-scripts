@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "lemonade-local/Qwen3.6-35B-A3B-MTP-GGUF",
+  "model": "lemonade-local/Gemma-4-12B-it-MTP-GGUF",
 
   "tui": {
     "message_limit": 10000
@@ -161,6 +161,21 @@
         "baseURL": "http://lemonade-server:13305/v1" // localhost would not work in Docker, use the service name instead
       },
       "models": {
+        "Qwen3-14B-GGUF": {
+          "name": "Qwen3 14B GGUF",
+          "limit": {
+            "context": 29696, // 38912 - 8192 (output) - ~1024 margin [BASED ON LLM TOTAL CONTEXT OF 38912 TOKENS]
+            "output": 8192    // 8k tokens for output, leaving 23k for context. This is a balance between context and output size.
+          }
+        },
+      "models": {
+        "phi-4-GGUF-Q4_K_M": {
+          "name": "Phi 4 GGUF",
+          "limit": {
+            "context": 12032, // 16384 - 4096 (output) - 256 (margin)
+            "output": 4096    // 4k tokens for output.
+          }
+        },
         "Qwen3.6-35B-A3B-MTP-GGUF": {
           "name": "Qwen 3.6 35B A3B",
           "limit": {
@@ -168,7 +183,7 @@
             "output": 8192    // 8k tokens for output, leaving 23k for context. This is a balance between context and output size.
           }
         },
-          "Gemma-4-12B-it-MTP-GGUF": {
+        "Gemma-4-12B-it-MTP-GGUF": {
           "name": "Gemma 4 12B",
           "limit": {
             "context": 29696, // 38912 - 8192 (output) - ~1024 margin [BASED ON LLM TOTAL CONTEXT OF 38912 TOKENS]
