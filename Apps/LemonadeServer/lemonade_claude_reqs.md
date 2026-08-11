@@ -40,12 +40,12 @@ Omräknat mer exakt: filen är ~17.1GB experter fördelat på 40 lager (~0.43GB/
   
 ### CTK/V 8q (Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS)
   
-  lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
+lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
   --ctx-size 16384 \
   --llamacpp rocm \
   --llamacpp-args "--n-cpu-moe 8 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
   
-  lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
+lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
   --ctx-size 32768 \
   --llamacpp rocm \
   --llamacpp-args "--n-cpu-moe 8 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
