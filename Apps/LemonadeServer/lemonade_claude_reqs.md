@@ -58,12 +58,13 @@ Samma resonemang, marginellt tightare pga större fil. K-quant (inte I-quant) br
 
 #### 32k context QAT. 8 moe offloading.  15-25 t/s vid chat essay riting = Ok(?)
 
-Kraschade vid moe 0. moe 8 -> 5 gav mycket prestanda. 20+t/s nu, 92% gpu usage.
+Kraschade vid moe 0. moe 8 -> 5 gav mycket prestanda. 15+t/s nu, 92% gpu usage.
+EDIT: MOE 5 hängde systemet.. uppat till moe 7..
 
 lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
   --ctx-size 32768 \
   --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 8 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
+  --llamacpp-args "--n-cpu-moe 7-fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
 
 ## ------------ QWEN --------------
 
