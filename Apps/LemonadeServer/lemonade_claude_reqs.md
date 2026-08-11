@@ -18,7 +18,12 @@ lemonade config set rocm_channel=nightly // KRITISKT!?
 
 Det finns en känd bugg i vissa Lemonade-versioner: stable/preview ROCm-kanalerna saknar HIP-stöd för gfx1201 och faller tyst tillbaka till CPU (ingen felkod, bara 5-10x lägre hastighet). Endast nightly-kanalen har arch-specifika gfx120x-builds som fungerar korrekt på RDNA4 just nu. Kör och verifiera i loggarna att du ser gfx1201 initieras i llama-server (inte bara CPU-info), plus håll koll med rocm-smi eller amd-smi att GPU-utnyttjandet faktiskt går upp under inferens. Annars sitter du och kör på CPU utan att märka det.
 
-## 2. Sätt ROCm som default-backend i config.json (i lemonade-recipe-volymen):
+##2. Perf level på graqfikkortet
+
+Om rocm-smi säger power save mode etc ->
+Set performance mode: Force the card out of power-saving clocks by running rocm-smi --setperflevel high or auto.
+
+## 2. Sätt ROCm som default-backend i config.json (i lemonade-recipe-volymen)
 
 { "llamacpp": { "backend": "rocm" } }
 
@@ -38,10 +43,10 @@ Mina --n-cpu-moe-siffror bygger på uppskattad genomsnittlig bitdensitet för UD
 
 ## gemma-4-26B-A4B-it-GGUF-UD-Q4_K_M   [REKOMMENDERAS?!]
 
-MOE 5 blir OOM, MOE 8 fungerar. Men prestandan ligger runt 10-12 t/s vid båda, så moe10 känns mer safe default
-
 MD -> unsloth/gemma-4-26B-A4B-it-GGUF (kan dras via lemoande UI)
-ARGS -> --n-cpu-moe 10 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16
+
+// EJ REK: ARGS Q8/Q4: --n-cpu-moe 10 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16
+ARGS Q8: --n-cpu-moe 14 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16
 
 ### gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS (13.8GB)
 
@@ -52,14 +57,11 @@ lemonade load gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS \
   --llamacpp rocm \
   --llamacpp-args "--n-cpu-moe 0 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
 
-### gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL (14.4GB)   [REKOMMENDERAS?!]
+### gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL (14.4GB)   [REKOMMENDERAS?!] 1,9t/s vid kod!!!!!!!!!!!!!!!
 
 Samma resonemang, marginellt tightare pga större fil. K-quant (inte I-quant) brukar dessutom ha mognare ROCm-kärnor än IQ4_XS.
 
 #### 32k context QAT. 8 moe offloading.  15-25 t/s vid chat essay riting = Ok(?)
-
-Kraschade vid moe 0. moe 8 -> 5 gav mycket prestanda. 15+t/s nu, 92% gpu usage.
-EDIT: MOE 5 hängde systemet.. uppat till moe 7..
 
 lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
   --ctx-size 32768 \
@@ -74,13 +76,19 @@ lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
 
 ARGS: --n-cpu-moe 0 --flash-attn on -ctk q8_0 -ctv q8_0
 
+### Qwen3 Coder
+
+lemonade pull unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_M
+
+ARGS Q8: --n-cpu-moe 18 -c 32768 -fa on -b 2048 -ub 2048 --cache-type-k q8_0 --cache-type-v q8_0 -t 8 --threads-batch 16
+
 ### Qwen3.6-35B-A3B-MTP-GGUF   [REKOMMENDERAS?!]
 
-#### 32k context, moe offloading (häften ca) - 20+ t/s Snabbare(?). Mycket snabbare än -ngl iaf(!)
+#### 32k context - moe 25
 
-MOE 20 fungerar men tar 97% av gpu vram.. MOE 22 = 92% vram, prestandasäkning, 15-20 t/s. Fortf betydligt bättre än ngl, men sämre än 20.
+REN Q8 setup verkar snabbare, 25+ t/s (överlag Q8/Q4 verkar rätt dåligt)
 
-ARGS: --n-cpu-moe 22 --flash-attn on -ctk q8_0 -ctv q4_0 -b 512 -ub 512 -t 8
+ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
 
 ### Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS (17.8GB)
 
