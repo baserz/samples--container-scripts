@@ -34,57 +34,62 @@ Mina --n-cpu-moe-siffror bygger på uppskattad genomsnittlig bitdensitet för UD
 
 --------------------------------------------------------------------
 
-## Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS (17.8GB)
+## ------------- GEMMA4 --------------
 
-Omräknat mer exakt: filen är ~17.1GB experter fördelat på 40 lager (~0.43GB/lager). Med 16GB VRAM minus KV+overhead behöver du bara flytta ut ca 7-9 lager, inte 20+ som jag gissade förra gången.
-  
-### CTK/V 8q (Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS)
-  
-lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
-  --ctx-size 16384 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 8 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
-  
-lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
-  --ctx-size 32768 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 8 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
-  
-Samma --n-cpu-moe fungerar för båda (KV-skillnaden är <400MB). Om det OOM:ar vid 32k, höj till 10-12.
-  
-## gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS (13.8GB)
+## gemma-4-26B-A4B-it-GGUF-UD-Q4_K_M   [REKOMMENDERAS?!]
 
-Med bara ~14GB fil och minimal KV-cache ryms hela modellen i princip på GPU:n.
+MOE 5 blir OOM, MOE 8 fungerar. Men prestandan ligger runt 10-12 t/s vid båda, så moe10 känns mer safe default
 
-### CTK/V 8q (gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS)
+MD -> unsloth/gemma-4-26B-A4B-it-GGUF (kan dras via lemoande UI)
+ARGS -> --n-cpu-moe 10 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16
 
-lemonade load gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS \
-  --ctx-size 16384 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 0 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
-  
+### gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS (13.8GB)
+
+#### 32k context - Ingen moe offloading! Ser ut fungera med q4 cache v. 15-25 t/s vid chat essay riting = Ok(?)
+
 lemonade load gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS \
   --ctx-size 32768 \
   --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 0 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
-  
-Marginalen är dock tunn (bara ~1.6GB kvar för KV+compute-buffers). Om det OOM:ar under prompt-processing (särskilt vid 32k med stora promptar), gör något av:
+  --llamacpp-args "--n-cpu-moe 0 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
 
---n-cpu-moe 4
-eller sänk -ub till 1024 (mindre compute-buffer-spik)
-
-## gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL (14.4GB)
+### gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL (14.4GB)   [REKOMMENDERAS?!]
 
 Samma resonemang, marginellt tightare pga större fil. K-quant (inte I-quant) brukar dessutom ha mognare ROCm-kärnor än IQ4_XS.
 
-### CTK/V 8q (gemma-4-26B-A4B-it-qat)
+#### 32k context QAT. 8 moe offloading.  15-25 t/s vid chat essay riting = Ok(?)
 
-lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
-  --ctx-size 16384 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 2 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
-  
+Kraschade vid moe 0.
+
 lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
   --ctx-size 32768 \
   --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 2 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16"
+  --llamacpp-args "--n-cpu-moe 8 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
+
+## ------------ QWEN --------------
+
+### Qwen2.5-Coder-14B-Instruct-GGUF-Q4_K_M
+
+45 t/s+. Så snabb men ligger ju 100% i VRAM och q8 cache.
+
+ARGS: --n-cpu-moe 0 --flash-attn on -ctk q8_0 -ctv q8_0
+
+### Qwen3.6-35B-A3B-MTP-GGUF   [REKOMMENDERAS?!]
+
+#### 32k context, moe offloading (häften ca) - 20+ t/s Snabbare(?). Mycket snabbare än -ngl iaf(!)
+
+MOE 20 fungerar men tar 97% av gpu vram.. MOE 22 = 92% vram, prestandasäkning, 15-20 t/s. Fortf betydligt bättre än ngl, men sämre än 20.
+
+ARGS: --n-cpu-moe 22 --flash-attn on -ctk q8_0 -ctv q4_0 -b 512 -ub 512 -t 8
+
+### Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS (17.8GB)
+
+Omräknat mer exakt: filen är ~17.1GB experter fördelat på 40 lager (~0.43GB/lager). Med 16GB VRAM minus KV+overhead behöver du bara flytta ut ca 7-9 lager, inte 20+ som jag gissade förra gången.
+  
+#### 32k context - denna cfg ger 12t/s där runt när den skriver essays (osäker på kodning atm)
+
+lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
+  --ctx-size 32768 \
+  --llamacpp rocm \
+  --llamacpp-args "--n-cpu-moe 22 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
+
+// claude default: 8 moe, q8 cache
