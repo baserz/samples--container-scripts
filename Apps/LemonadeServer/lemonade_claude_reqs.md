@@ -58,7 +58,7 @@ Samma resonemang, marginellt tightare pga större fil. K-quant (inte I-quant) br
 
 #### 32k context QAT. 8 moe offloading.  15-25 t/s vid chat essay riting = Ok(?)
 
-Kraschade vid moe 0.
+Kraschade vid moe 0. moe 8 -> 5 gav mycket prestanda. 20+t/s nu, 92% gpu usage.
 
 lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
   --ctx-size 32768 \
