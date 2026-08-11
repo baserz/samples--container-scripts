@@ -9,19 +9,17 @@
   // https://opencode.ai
   "agent": {
     "review": {
-      "temperature": 0.1,
       "permission": {
         "edit": "deny"
       }
     },
     "analyze": {
-      "temperature": 0.1,
       "permission": {
         "edit": "deny"
       }
     },
     "brainstorm": {
-      "temperature": 0.7,
+      "temperature": 1.0, // Raise temp for pure brainstorming, lower for more focused tasks
       "permission": {
         "edit": "deny",
         "bash": "deny",
@@ -29,7 +27,6 @@
       }
     },
     "plan": {
-      "temperature": 0.1,
       "permission": {
         "edit": "deny",
         "bash": "deny",
@@ -37,7 +34,6 @@
       }
     },
     "code-reviewer": {
-      "temperature": 0.1,
       "prompt": "You are a code reviewer. Focus on security, performance, code quality and maintainability.",
       "permission": {
         "edit": "deny",
