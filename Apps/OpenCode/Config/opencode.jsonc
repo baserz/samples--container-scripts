@@ -44,7 +44,7 @@
     "build": {
       "mode": "primary",
       "prompt": "You are a senior .NET developer. You ensure code is of good quality and running as expected. You should ask the user for clarification if the requirements are unclear.",
-      // Below overrides model settings if set..
+      // Old defaults, below overrides model settings if set..
       // "temperature": 0.4,
       // "top_p": 0.90,
       // "min_p": 0.05,
