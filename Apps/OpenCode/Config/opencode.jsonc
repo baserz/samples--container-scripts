@@ -48,12 +48,13 @@
     "build": {
       "mode": "primary",
       "prompt": "You are a senior .NET developer. You ensure code is of good quality and running as expected. You should ask the user for clarification if the requirements are unclear.",
-      "temperature": 0.4,
-      "top_p": 0.90,
-      "min_p": 0.05,
-      "repetition_penalty": 1.05,
-      "frequency_penalty": 0.0,
-      "presence_penalty": 0.0,
+      // Below overrides model settings if set..
+      // "temperature": 0.4,
+      // "top_p": 0.90,
+      // "min_p": 0.05,
+      // "repetition_penalty": 1.05,
+      // "frequency_penalty": 0.0,
+      // "presence_penalty": 0.0,
       "permission": {
         "external_directory": "deny",
         "doom_loop": "deny",
@@ -114,6 +115,7 @@
           "rsync*": "deny",
           "rm -rf*": "deny",
           "dotnet build*": "allow",
+          "dotnet debug*": "allow",
           "dotnet test*": "allow",
           "dotnet run*": "allow",
           "dotnet restore*": "allow",
@@ -162,24 +164,35 @@
       },
       "models": {
         "Gemma-4-12B-it-MTP-GGUF": {
-        "name": "Gemma 4 12B",
-        "limit": {
-          "context": 29696,
-          "output": 8192
-        }
+          "name": "Gemma 4 12B",
+          "limit": {
+            "context": 29696,
+            "output": 8192
+          },
+          "options": { // Recommended defaults by https://unsloth.ai/docs/models/gemma-4
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "frequency_penalty": 0.0,
+            "presence_penalty": 0.0,
+            "extraBody": {
+              "top_k": 64,
+              "min_p": 0.0,
+              "repetition_penalty": 1.0
+            }
+          }
         },
-        "gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL": {
+        "gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL": { // Recommended by https://huggingface.co/unsloth/gemma-4-26B-A4B-it-qat-GGUF for coding tasks
           "name": "Gemma 4 26B A4B QAT",
           "limit": {
             "context": 29696,
             "output": 8192
-          }
-        },
-        "Qwen2.5-Coder-14B-Instruct-GGUF-Q4_K_M": {
-          "name": "Qwen 2.5 Coder 14B",
-          "limit": {
-            "context": 29696,
-            "output": 8192
+          },
+          "options": {
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "extraBody": {
+              "top_k": 64
+            }
           }
         },
         "Qwen3.6-35B-A3B-MTP-GGUF": {
@@ -187,6 +200,16 @@
           "limit": {
             "context": 29696,
             "output": 8192
+          },
+          "options": { // Recommended by https://huggingface.co/Qwen/Qwen3.6-35B-A3B for coding tasks
+            "temperature": 0.6,
+            "top_p": 0.95,
+            "presence_penalty": 0.0,
+            "extraBody": {
+              "top_k": 20,
+              "min_p": 0.0,
+              "repetition_penalty": 1.0
+            }
           }
         }
       }
