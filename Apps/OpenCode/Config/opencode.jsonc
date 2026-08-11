@@ -195,6 +195,13 @@
           "context": 29696,
           "output": 8192
         }
+      },
+      "gemma-4-26B-A4B-it-GGUF-UD-Q4_K_M": {
+        "name": "Gemma 4 26B",
+        "limit": {
+          "context": 29696,
+          "output": 8192
+        }
       }
     }
     }
