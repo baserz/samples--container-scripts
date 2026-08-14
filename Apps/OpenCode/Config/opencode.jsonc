@@ -191,6 +191,23 @@
             }
           }
         },
+        "Qwen3-Coder-30B-A3B-Instruct-GGUF": {
+          "name": "Qwen 3 Coder 30B A3B Instruct",
+          "limit": {
+            "context": 29696,
+            "output": 8192
+          },
+          "options": { // Per Qwen's own model card recommendations
+            "temperature": 0.7,
+            "top_p": 0.8,
+            "presence_penalty": 0.0,
+            "extraBody": {
+              "top_k": 20,
+              "min_p": 0.0,
+              "repetition_penalty": 1.05
+            }
+          }
+        },
         "Qwen3.6-35B-A3B-MTP-GGUF": {
           "name": "Qwen 3.6 35B A3B",
           "limit": {

@@ -39,17 +39,23 @@ Mina --n-cpu-moe-siffror bygger på uppskattad genomsnittlig bitdensitet för UD
 
 --------------------------------------------------------------------
 
+GENERALLT: SIKTA MOT 85% VRAM usage i rocm-smi.
+
+--------------------------------------------------------------------
+
 ## ------------- GEMMA4 --------------
 
 ### gemma-4-26B-A4B-it-GGUF-UD-Q4_K_M   [REKOMMENDERAS?!][[Seems to work well]]
 
 MD -> unsloth/gemma-4-26B-A4B-it-GGUF (kan dras via lemoande UI)
 
-// OLD | EJ REK: ARGS Q8/Q4: --n-cpu-moe 10 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16
-// OLD | ARGS Q8: --n-cpu-moe 14 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16
-// cpu moe 12 approaches 95% gpu vram
+#### 32k contexct
 
---n-gpu-layers 999 --n-cpu-moe 13 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1 --spec-type draft-mtp --spec-draft-n-max 4
+--n-gpu-layers 999 --n-cpu-moe 15 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1 --spec-type draft-mtp --spec-draft-n-max 4
+
+#### 48k context (untested)
+
+--n-gpu-layers 999 --n-cpu-moe 25 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1 --spec-type draft-mtp --spec-draft-n-max 4
 
 ## ------------ QWEN --------------
 
@@ -72,3 +78,11 @@ ARGS Q8: --n-cpu-moe 18 -c 32768 -fa on -b 2048 -ub 2048 --cache-type-k q8_0 --c
 REN Q8 setup verkar snabbare, 25+ t/s (överlag Q8/Q4 verkar rätt dåligt)
 
 ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
+
+### Qwen3-Coder-30B-A3B-Instruct-GGUF
+
+Dra genom lemonade default, Qwen3-Coder-30B-A3B-Instruct-GGUF
+
+moe 18 = 89-90% ca.
+
+--n-gpu-layers 999 --n-cpu-moe 18 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1
