@@ -177,8 +177,8 @@
             }
           }
         },
-        "gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL": { // Recommended by https://huggingface.co/unsloth/gemma-4-26B-A4B-it-qat-GGUF for coding tasks
-          "name": "Gemma 4 26B A4B QAT",
+        "Gemma-4-26B-A4B-it-MTP-GGUF": { // Recommended for misc tasks by https://huggingface.co/unsloth/gemma-4-26B-A4B-it-GGUF
+          "name": "Gemma 4 26B A4B it MTP GUF",
           "limit": {
             "context": 29696,
             "output": 8192

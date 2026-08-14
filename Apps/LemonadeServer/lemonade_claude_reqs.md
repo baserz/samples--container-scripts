@@ -41,36 +41,19 @@ Mina --n-cpu-moe-siffror bygger på uppskattad genomsnittlig bitdensitet för UD
 
 ## ------------- GEMMA4 --------------
 
-## gemma-4-26B-A4B-it-GGUF-UD-Q4_K_M   [REKOMMENDERAS?!]
+### gemma-4-26B-A4B-it-GGUF-UD-Q4_K_M   [REKOMMENDERAS?!][[Seems to work well]]
 
 MD -> unsloth/gemma-4-26B-A4B-it-GGUF (kan dras via lemoande UI)
 
-// EJ REK: ARGS Q8/Q4: --n-cpu-moe 10 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16
-ARGS Q8: --n-cpu-moe 14 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16
+// OLD | EJ REK: ARGS Q8/Q4: --n-cpu-moe 10 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16
+// OLD | ARGS Q8: --n-cpu-moe 14 -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 2048 -t 8 -tb 16
+// cpu moe 12 approaches 95% gpu vram
 
-### gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS (13.8GB)
-
-#### 32k context - Ingen moe offloading! Ser ut fungera med q4 cache v. 15-25 t/s vid chat essay riting = Ok(?)
-
-lemonade load gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS \
-  --ctx-size 32768 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 0 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
-
-### gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL (14.4GB)   [REKOMMENDERAS?!] 1,9t/s vid kod!!!!!!!!!!!!!!!
-
-Samma resonemang, marginellt tightare pga större fil. K-quant (inte I-quant) brukar dessutom ha mognare ROCm-kärnor än IQ4_XS.
-
-#### 32k context QAT. 8 moe offloading.  15-25 t/s vid chat essay riting = Ok(?)
-
-lemonade load gemma-4-26B-A4B-it-qat-GGUF-UD-Q4_K_XL \
-  --ctx-size 32768 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 7-fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
+--n-gpu-layers 999 --n-cpu-moe 13 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1 --spec-type draft-mtp --spec-draft-n-max 4
 
 ## ------------ QWEN --------------
 
-### Qwen2.5-Coder-14B-Instruct-GGUF-Q4_K_M
+### Qwen2.5-Coder-14B-Instruct-GGUF-Q4_K_M [[Works pretty poorly, tool calls sketchy]]
 
 45 t/s+. Så snabb men ligger ju 100% i VRAM och q8 cache.
 
@@ -82,23 +65,10 @@ lemonade pull unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_M
 
 ARGS Q8: --n-cpu-moe 18 -c 32768 -fa on -b 2048 -ub 2048 --cache-type-k q8_0 --cache-type-v q8_0 -t 8 --threads-batch 16
 
-### Qwen3.6-35B-A3B-MTP-GGUF   [REKOMMENDERAS?!]
+### Qwen3.6-35B-A3B-MTP-GGUF   [REKOMMENDERAS?!][[Works very well, a bit slow but functional and descently smart]]
 
 #### 32k context - moe 25
 
 REN Q8 setup verkar snabbare, 25+ t/s (överlag Q8/Q4 verkar rätt dåligt)
 
 ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
-
-### Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS (17.8GB)
-
-Omräknat mer exakt: filen är ~17.1GB experter fördelat på 40 lager (~0.43GB/lager). Med 16GB VRAM minus KV+overhead behöver du bara flytta ut ca 7-9 lager, inte 20+ som jag gissade förra gången.
-  
-#### 32k context - denna cfg ger 12t/s där runt när den skriver essays (osäker på kodning atm)
-
-lemonade load Qwen3.6-35B-A3B-MTP-GGUF-UD-IQ4_XS \
-  --ctx-size 32768 \
-  --llamacpp rocm \
-  --llamacpp-args "--n-cpu-moe 22 -fa on -ctk q8_0 -ctv q4_0 -b 2048 -ub 2048 -t 8 -tb 16"
-
-// claude default: 8 moe, q8 cache
