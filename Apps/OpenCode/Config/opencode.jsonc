@@ -194,8 +194,8 @@
         "Qwen3-Coder-30B-A3B-Instruct-GGUF-UD-Q4_K_XL": {
           "name": "Qwen 3 Coder 30B A3B Instruct (UD-Q4_K_XL)",
           "limit": {
-            "context": 32568,
-            "output": 8192
+            "context": 49150, // 2 tokens less than 49152, which is the max context for this model
+            "output": 24576
           },
           "options": { // Per Qwen's own model card recommendations
             "temperature": 0.7,
@@ -211,8 +211,8 @@
         "Qwen3.6-35B-A3B-MTP-GGUF": {
           "name": "Qwen 3.6 35B A3B",
           "limit": {
-            "context": 49000,
-            "output": 8192
+            "context": 49150, // 2 tokens less than 49152, which is the max context for this model
+            "output": 24576
             //"context": 29696,
             //"output": 8192
           },
@@ -230,8 +230,8 @@
         "Qwen3.8-27B-GGUF-UD-IQ3_XXS": { // Dense model which wont fit 16GB VRAM with Q4 quantization, gets VERY slow when offloading. Q3 XXS to keep it on VRAM.
           "name": "Qwen 3.8 27B UD-IQ3_XXS",
           "limit": {
-            "context": 32568,
-            "output": 8192
+            "context": 32668,
+            "output": 24576
           },
           "options": {
             // General "Thinking Mode" default is temp 1.0; lowered per Qwen3.6-27B's precedent for precise coding tasks — unconfirmed for 3.8 specifically
@@ -241,7 +241,7 @@
             "extraBody": {
               "top_k": 20,
               "min_p": 0.0,
-              "repetition_penalty": 1.0,
+              "repetition_penalty": 1.0
             }
             // "options": { // Per Qwen3.8's own generation_config.json
             //   "temperature": 1.0,
