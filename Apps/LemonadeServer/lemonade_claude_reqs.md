@@ -85,11 +85,9 @@ ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
 
 ### Qwen3-Coder-30B-A3B-Instruct-GGUF-UD-Q4_K_XL
 
-Dra genom lemonade default, Qwen3-Coder-30B-A3B-Instruct-GGUF
+#### 32k context (coder)
 
-moe 18 = 89-90% ca.
-
---n-gpu-layers 999 --n-cpu-moe 18 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1
+--n-gpu-layers 999 --n-cpu-moe 15 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --batch-size 1024 --ubatch-size 512 --threads 8 --threads-batch 8 --parallel 1
 
 ### Qwen3.8-27B-GGUF-UD-IQ3_XXS (unsloth)
 

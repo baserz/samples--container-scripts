@@ -233,25 +233,27 @@
             "context": 32568,
             "output": 8192
           },
-          "options": { // General "Thinking Mode" default is temp 1.0; lowered per Qwen3.6-27B's precedent for precise coding tasks — unconfirmed for 3.8 specifically
+          "options": {
+            // General "Thinking Mode" default is temp 1.0; lowered per Qwen3.6-27B's precedent for precise coding tasks — unconfirmed for 3.8 specifically
             "temperature": 0.6,
             "top_p": 0.95,
             "presence_penalty": 0.0,
             "extraBody": {
               "top_k": 20,
               "min_p": 0.0,
-              "repetition_penalty": 1.0
+              "repetition_penalty": 1.0,
             }
-          // "options": { // Per Qwen3.8's own generation_config.json
-          //   "temperature": 1.0,
-          //   "top_p": 0.95,
-          //   "presence_penalty": 0.0,
-          //   "extraBody": {
-          //     "top_k": 20,
-          //     "min_p": 0.0,
-          //     "repetition_penalty": 1.0
-          //   }
-          // }
+            // "options": { // Per Qwen3.8's own generation_config.json
+            //   "temperature": 1.0,
+            //   "top_p": 0.95,
+            //   "presence_penalty": 0.0,
+            //   "extraBody": {
+            //     "top_k": 20,
+            //     "min_p": 0.0,
+            //     "repetition_penalty": 1.0
+            //   }
+            // }
+          }
         }
       }
     }
