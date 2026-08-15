@@ -79,6 +79,10 @@ REN Q8 setup verkar snabbare, 25+ t/s (överlag Q8/Q4 verkar rätt dåligt)
 
 ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
 
+#### 48k context (49152)
+
+--n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 1024 -ub 512 -t 8 --threads-batch 8 --parallel 1 --spec-type draft-mtp --spec-draft-n-max 4
+
 ### Qwen3-Coder-30B-A3B-Instruct-GGUF
 
 Dra genom lemonade default, Qwen3-Coder-30B-A3B-Instruct-GGUF
