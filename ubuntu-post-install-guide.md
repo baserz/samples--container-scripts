@@ -20,4 +20,3 @@ sudo apt autoclean
 ## Swappiness optimization (if a lot of ram is available)
 
 echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
-
