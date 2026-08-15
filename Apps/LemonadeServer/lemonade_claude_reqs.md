@@ -81,7 +81,7 @@ ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
 
 #### 48k context (49152)
 
---n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 1024 -ub 512 -t 8 --threads-batch 8 --parallel 1
+--n-cpu-moe 22 --flash-attn on -ctk q8_0 -ctv q8_0 -b 1024 -ub 512 -t 8 --threads-batch 8 --parallel 1
 
 ### Qwen3-Coder-30B-A3B-Instruct-GGUF-UD-Q4_K_XL
 

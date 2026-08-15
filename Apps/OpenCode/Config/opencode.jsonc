@@ -162,7 +162,7 @@
         "Gemma-4-12B-it-MTP-GGUF": {
           "name": "Gemma 4 12B",
           "limit": {
-            "context": 32568,
+            "context": 32300,
             "output": 8192
           },
           "options": { // Recommended defaults by https://unsloth.ai/docs/models/gemma-4
@@ -180,7 +180,7 @@
         "Gemma-4-26B-A4B-it-MTP-GGUF": { // Recommended for misc tasks by https://huggingface.co/unsloth/gemma-4-26B-A4B-it-GGUF
           "name": "Gemma 4 26B A4B it MTP GUF",
           "limit": {
-            "context": 32568,
+            "context": 32300,
             "output": 8192
           },
           "options": {
@@ -194,7 +194,7 @@
         "Qwen3-Coder-30B-A3B-Instruct-GGUF-UD-Q4_K_XL": {
           "name": "Qwen 3 Coder 30B A3B Instruct (UD-Q4_K_XL)",
           "limit": {
-            "context": 49150, // 2 tokens less than 49152, which is the max context for this model
+            "context": 49000,
             "output": 24576
           },
           "options": { // Per Qwen's own model card recommendations
@@ -211,7 +211,7 @@
         "Qwen3.6-35B-A3B-MTP-GGUF": {
           "name": "Qwen 3.6 35B A3B",
           "limit": {
-            "context": 49150, // 2 tokens less than 49152, which is the max context for this model
+            "context": 49000,
             "output": 24576
             //"context": 29696,
             //"output": 8192
@@ -230,7 +230,7 @@
         "Qwen3.8-27B-GGUF-UD-IQ3_XXS": { // Dense model which wont fit 16GB VRAM with Q4 quantization, gets VERY slow when offloading. Q3 XXS to keep it on VRAM.
           "name": "Qwen 3.8 27B UD-IQ3_XXS",
           "limit": {
-            "context": 32668,
+            "context": 32600,
             "output": 24576
           },
           "options": {
