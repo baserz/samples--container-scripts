@@ -83,6 +83,13 @@ ARGS: Q8: --n-cpu-moe 25 --flash-attn on -ctk q8_0 -ctv q8_0 -b 512 -ub 512 -t 8
 
 --n-cpu-moe 22 --flash-attn on -ctk q8_0 -ctv q8_0 -b 1024 -ub 512 -t 8 --threads-batch 8 --parallel 1
 
+
+### Qwen3.6-35B-A3B-GGUF-UD-Q4_K_XL
+
+#### 64K Context
+
+--n-gpu-layers 999 --n-cpu-moe 21 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --threads 8 --temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --repeat-penalty 1.0
+
 ### Qwen3-Coder-30B-A3B-Instruct-GGUF-UD-Q4_K_XL
 
 #### 32k context (coder)
