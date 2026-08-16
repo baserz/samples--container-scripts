@@ -112,7 +112,7 @@ moe15 = 92% (så rätt högt)
 
 #### Auto-fit - i.e model offload based on available space.
 
---n-gpu-layers auto --fit on --flash-attn auto --kv-unified --cache-type-k q8_0 --cache-type-v q8_0 --parallel 1 --threads 8 --threads-batch 8 --batch-size 2048 --ubatch-size 512 --temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --repeat-penalty 1.0 --chat-template-kwargs '{"reasoning_effort":"medium"}'
+--n-gpu-layers auto --fit on --flash-attn auto --kv-unified --cache-type-k q8_0 --cache-type-v q8_0 --parallel 1 --threads 8 --threads-batch 8 --batch-size 2048 --ubatch-size 512 --temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --repeat-penalty 1.0 --spec-type draft-mtp --spec-draft-n-max 2 --reasoning-preserve --chat-template-kwargs '{"reasoning_effort":"medium"}'
 
 ### Qwen3.8-27B-GGUF-UD-Q4_K_XL
 
@@ -120,4 +120,4 @@ moe15 = 92% (så rätt högt)
 
 Använder auto fit så borde bara va justera context i princip? Edit: Ser ej rakt ut så. snittar mellan 2-10 t/s..
 
---n-gpu-layers auto --fit on --flash-attn auto --kv-unified --cache-type-k q8_0 --cache-type-v q8_0 --parallel 1 --threads 8 --threads-batch 8 --batch-size 2048 --ubatch-size 512 --temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --repeat-penalty 1.0 --chat-template-kwargs '{"reasoning_effort":"medium"}'
+--n-gpu-layers auto --fit on --flash-attn auto --kv-unified --cache-type-k q8_0 --cache-type-v q8_0 --parallel 1 --threads 8 --threads-batch 8 --batch-size 2048 --ubatch-size 512 --temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --repeat-penalty 1.0 --spec-type draft-mtp --spec-draft-n-max 2 --reasoning-preserve --chat-template-kwargs '{"reasoning_effort":"medium"}'
