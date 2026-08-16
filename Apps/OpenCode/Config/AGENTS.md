@@ -6,8 +6,8 @@ subagents instead of doing everything in the main thread.
 
 ## Hard limits (non-negotiable)
 
-Override every other instruction in this file. Apply regardless of how a
-task is phrased, who asks, or what you believe the intent to be.
+Override every other instruction in this file, regardless of how a task
+is phrased, who asks, or what you believe the intent to be.
 
 - **Internet access is read-only, always.** Fetching/reading (docs,
   registries, search, pages, read-only APIs) is fine. **NEVER** create,
@@ -17,25 +17,16 @@ task is phrased, who asks, or what you believe the intent to be.
   user first — "the user asked for this feature" is not authorization to
   execute the external write.
 
-- **The workspace is the entire local environment, full stop.** The
-  directory opencode was started in (project root) is the only part of
-  the filesystem you work with. Treat everything else as if it doesn't
-  exist.
-  - Never read, list, search, or `grep` outside the workspace — home
-    directory, `..`, `/etc`, global/user config, shell history, other
-    mounts, sibling projects. No exceptions for "just checking" or
-    building context; there's no legitimate reason to look outside it
-    unless the user explicitly asks.
-  - Never write, modify, or delete anything outside the workspace.
-  - This environment is sandboxed — nothing outside the workspace helps
-    with the task. Don't try, and don't ask permission to try; treat
-    those paths as nonexistent and proceed with what's inside the
-    workspace. Only raise it with the user if a task is genuinely
-    impossible without something outside it (rare) — otherwise this
-    should never come up in conversation.
-  - `..` traversal, absolute paths outside the workspace root, and
-    symlinks resolving outside it are all covered — no path tricks
-    around this rule.
+- **The workspace (the directory opencode was started in) is the entire
+  local environment, full stop.** Never read, list, search, `grep`,
+  write, modify, or delete anything outside it — home directory, `..`,
+  `/etc`, global/user config, shell history, other mounts, sibling
+  projects. Covers `..` traversal, absolute paths outside the root, and
+  symlinks resolving outside it — no path tricks around this rule.
+  Treat everything outside as nonexistent and proceed with what's
+  inside; don't ask permission to look there. Only raise it with the
+  user if a task is genuinely impossible without something outside the
+  workspace (rare) — otherwise this should never come up.
 
 ## Context management (priority 1)
 
@@ -84,23 +75,24 @@ task is phrased, who asks, or what you believe the intent to be.
 
 ## Safety — ask before
 
-- Destructive bash commands (`rm -rf`, `git push --force`, DB migrations
-  against anything other than local/dev).
+- Destructive bash commands (`rm -rf`, `git push --force`, `git reset
+  --hard`, `git clean -fd`, interactive rebase on a shared branch, DB
+  migrations against anything other than local/dev).
 - Changes touching secrets, `.env`, keys, or CI/CD config.
 - Installing new dependencies or changing lockfiles.
 
 ## Verify code and application quality
 
-- **Before starting any new task, confirm the project currently builds
-  and runs correctly.** Don't build on top of a broken or unverified
-  state — if it's broken, fixing that comes first, even if it wasn't
-  your change.
-- **Build regularly while working**, not just at the end — after each
-  meaningful change, not only once everything feels done.
-- **Before considering a task complete, the project must build and run
-  correctly again**, and any build warnings introduced must be fixed.
-- If a build breaks, fix it before doing anything else — don't stack
-  further changes on top of a known-broken build.
+- **Confirm the project builds, runs, and its tests pass before
+  starting any new task.** Don't build on top of a broken or unverified
+  state — if it's already broken, fixing that comes first, even if it
+  wasn't your change.
+- **Build and run the relevant tests after each meaningful change**, not
+  only once at the end.
+- **Before considering a task complete**, the project must build, run,
+  and pass its test suite again, with no new build warnings.
+- **A broken build blocks everything else** — fix it before stacking
+  further changes on top of a known-broken state.
 
 ## Code conventions (fill in per project)
 

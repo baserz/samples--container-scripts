@@ -80,6 +80,17 @@ frameworks, databases, and UI.
 - One endpoint = one class, so each endpoint depends only on what it
   actually needs.
 
+### 2.4 Dependency Injection
+
+- **Constructor injection only** — no service locator, no static
+  singletons holding mutable state.
+- Register services with the narrowest lifetime that's correct
+  (`Scoped` for anything touching a `DbContext`/request state,
+  `Singleton` only for genuinely stateless or thread-safe services).
+- A feature registers its own services (e.g. an
+  `AddCreateOrderFeature()` extension method) rather than everything
+  piling into one giant `Program.cs`.
+
 ---
 
 ## 3. Testing Strategy
@@ -130,10 +141,6 @@ public async Task CreateOrder_WithValidData_ShouldSaveToDatabase()
 
     // Assert
     response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-    // (Optional: verify against the real test database)
-    var orderInDb = await _dbContext.Orders.FirstOrDefaultAsync();
-    orderInDb.Should().NotBeNull();
 }
 ```
 
@@ -148,28 +155,41 @@ public async Task CreateOrder_WithValidData_ShouldSaveToDatabase()
 
 ## 4. Error Handling and Validation
 
-### 4.1 Handle Edge Cases and Expected Failure States
+Apply whenever code accepts external input (request bodies, query
+parameters, route values, command arguments, etc.):
 
-Apply these rules whenever code accepts external input (request bodies,
-query parameters, route values, command arguments, etc.):
-
-1. **Validate all required input.** Every required argument or request
-   parameter must be validated before use, via a dedicated validator
+1. **Validate all required input** before use, via a dedicated validator
    (e.g., `CreateOrderValidator.cs` next to its feature) — not scattered
    inline checks.
-2. **Validation failures are not exceptions.** Invalid or missing data
-   must produce a clear, structured error response (e.g., HTTP 400 with
-   `ProblemDetails`) — never an unhandled exception or generic 500.
-3. **Check data shape, not just presence.** Confirm the data matches the
-   expected format/type (e.g., a GUID-shaped string, a date in range) —
-   not just that a field is non-null.
-4. **Reserve `throw` for truly unrecoverable states** — e.g., the
-   database is unreachable, a required config value is missing at
-   startup, a domain invariant was violated by a programming bug.
-5. **Invalid user input is never grounds for an exception.** If the
-   caller supplied the bad data, handle it as a validation error (rule
-   2) regardless of how malformed or missing it is. Never use `throw` as
-   a substitute for input validation.
+2. **Validation failures are not exceptions** — invalid or missing data
+   produces a structured error response (e.g., HTTP 400 with
+   `ProblemDetails`), never an unhandled exception or generic 500.
+3. **Check shape, not just presence** — confirm data matches the
+   expected format/type (a GUID-shaped string, a date in range), not
+   just that a field is non-null.
+4. **Reserve `throw` for truly unrecoverable states** — the database is
+   unreachable, required config is missing at startup, a domain
+   invariant was violated by a programming bug. Invalid *user* input is
+   never grounds for a `throw`, no matter how malformed — handle it as a
+   validation error (rule 2).
 
 **Rule of thumb:** caller sent something wrong → validation error. The
 system itself is broken or in an impossible state → exception.
+
+---
+
+## 5. Logging & Configuration
+
+- **Structured logging via `ILogger<T>`** — no `Console.WriteLine`. Log
+  the event and its data as parameters
+  (`_logger.LogInformation("Order {OrderId} created", id)`), not as an
+  interpolated string, so logs stay queryable.
+- **Never log secrets, tokens, connection strings, or full request
+  bodies** containing PII.
+- **Strongly-typed configuration** via `IOptions<T>` /
+  `IOptionsSnapshot<T>` bound from config sections — avoid scattering
+  `IConfiguration["Some:Key"]` lookups through business logic.
+- Secrets come from environment variables or a secret manager, never
+  committed to the repo (see `AGENTS.md` — changes touching secrets or
+  `.env` require asking first).
+  
