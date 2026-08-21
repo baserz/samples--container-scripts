@@ -1,31 +1,27 @@
 image: mcr.microsoft.com/dotnet/sdk:10.0
 workdir: /workspace
-memory: "4096"  # Ger 4 GB RAM
-cpus: 2        # Ger 2 CPU-kärnor
+memory: "4096"
+cpus: 2
 env:
   OPENAI_BASE_URL: http://192.168.50.142:13305/v1
   OPENAI_API_BASE: http://192.168.50.142:13305/v1
   OPENAI_API_KEY: lemonade
 network:
   allow:
-    # Nödvändigt för apt-get (Ubuntu)
     - archive.ubuntu.com
     - security.ubuntu.com
-    
-    # Nödvändigt för Node/npm, .NET och GitHub
     - deb.nodesource.com
     - registry.npmjs.org
     - api.nuget.org
     - github.com
     - raw.githubusercontent.com
-    
-    # Din lokala AI-värd
     - 192.168.50.142 
 scripts:
   setup: |
-    # 1. Uppdatera och installera grundverktyg (+ Python som agenter ofta behöver)
+    # 1. Uppdatera och installera grundverktyg 
+    # (Tog bort 'gosu' härifrån eftersom vi kör som root)
     apt-get update 
-    apt-get install -y --no-install-recommends curl git jq procps gosu ca-certificates python3 python3-pip
+    apt-get install -y --no-install-recommends curl git jq procps ca-certificates python3 python3-pip
     
     # 2. Installera Node.js
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -37,22 +33,22 @@ scripts:
     # 4. Installera OpenCode
     npm install -g opencode-ai
     
-    # 5. Skapa nödvändiga mappar och sätt rättigheter för användare 1000
-    mkdir -p /home/ubuntu/.local/share/opencode \
-             /home/ubuntu/.local/state \
-             /home/ubuntu/.config/opencode \
+    # 5. Skapa nödvändiga mappar i root-katalogen
+    # (Tog bort chown-kommandot helt)
+    mkdir -p /root/.local/share/opencode \
+             /root/.local/state \
+             /root/.config/opencode \
              /workspace
-    chown -hR 1000:1000 /home/ubuntu 2>/dev/null || true
 
-# export TERM=xterm-256color # under start
   start: |
-    
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
     export DOTNET_NOLOGO=true
     export DOTNET_USE_POLLING_FILE_WATCHER=true
     export ASPNETCORE_ENVIRONMENT=Development
-    export OPENCODE_CONFIG_DIR=/home/ubuntu/.config/opencode
     
-    # Startar en bash-session som standard. 
-    # Ändra /bin/bash till 'opencode' om du vill att agenten ska starta direkt.
-    exec gosu 1000:1000 /bin/bash
+    # Peka om OpenCodes konfiguration till root
+    export OPENCODE_CONFIG_DIR=/root/.config/opencode
+
+    # Startar en bash-session som root
+    # (Bytte ut 'exec gosu 1000:1000 /bin/bash' mot bara /bin/bash)
+    exec /bin/bash

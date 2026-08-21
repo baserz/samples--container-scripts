@@ -12,12 +12,12 @@ hostname -I
 
 msb create --name opencode-agent --conf opencode-sandbox.yaml \
   -v /home/base/src:/workspace \
-  -v /home/base/.config/opencode:/home/ubuntu/.config/opencode \
-  -v /home/base/.local/share/opencode:/home/ubuntu/.local/share/opencode
+  -v /home/base/.config/opencode:/home/root/.config/opencode \
+  -v /home/base/.local/share/opencode:/home/root/.local/share/opencode
 
 ### 2. Gör initiell setup (ḱör install scripts etc)
 
-msb exec opencode-env -- setup
+msb exec opencode-agent-- setup
 
 ### 3. Starta och använd
 
