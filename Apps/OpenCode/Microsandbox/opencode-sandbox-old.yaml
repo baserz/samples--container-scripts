@@ -1,0 +1,30 @@
+# sandbox.yaml
+image: mcr.microsoft.com/dotnet/sdk:10.0
+workdir: /workspace
+env:
+  OPENAI_BASE_URL: http://192.168.50.142:13305/v1
+  OPENAI_API_KEY: lemonade
+network:
+  allow:
+    - deb.nodesource.com
+    - registry.npmjs.org
+    - api.nuget.org
+    - github.com
+    - raw.githubusercontent.com
+    - 192.168.50.142 # <VÄRDENS-IP>   # för Lemonade-anropet
+scripts:
+  setup: |
+    apt-get update && apt-get install -y --no-install-recommends curl git jq procps gosu \
+      && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+      && apt-get install -y --no-install-recommends nodejs \
+      && rm -rf /var/lib/apt/lists/* \
+      && npm install -g opencode-ai \
+      && mkdir -p /home/ubuntu/.local/share/opencode /home/ubuntu/.local/state /home/ubuntu/.config/opencode /workspace \
+      && chown -R 1000:1000 /home/ubuntu
+      && npm install -g opencode-ai
+  start: |
+    export DOTNET_CLI_TELEMETRY_OPTOUT=1
+    export DOTNET_NOLOGO=true
+    export DOTNET_USE_POLLING_FILE_WATCHER=true
+    export ASPNETCORE_ENVIRONMENT=Development
+    exec gosu 1000:1000 /bin/bash
