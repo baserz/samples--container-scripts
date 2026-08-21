@@ -49,6 +49,12 @@ scripts:
     # Peka om OpenCodes konfiguration till root
     export OPENCODE_CONFIG_DIR=/root/.config/opencode
 
+    # Om opencode inte finns, kör setup-skriptet!
+    if ! command -v opencode-ai &> /dev/null; then
+        echo "Första uppstarten upptäckt. Kör setup-skriptet..."
+        bash /.msb/scripts/setup
+        echo "Installation klar!"
+
     # Startar en bash-session som root
     # (Bytte ut 'exec gosu 1000:1000 /bin/bash' mot bara /bin/bash)
     exec /bin/bash
